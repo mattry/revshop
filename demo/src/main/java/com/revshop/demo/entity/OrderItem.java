@@ -15,16 +15,16 @@ public class OrderItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
+    @JoinColumn(name = "buyer_order_id", nullable = false)
+    private BuyerOrder buyerOrder;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_order_id", nullable = false)
+    private SellerOrder sellerOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
-
-    @ManyToOne
-    @JoinColumn(name = "seller_id", nullable = false)
-    private Seller seller;
 
     private Integer quantity;
 

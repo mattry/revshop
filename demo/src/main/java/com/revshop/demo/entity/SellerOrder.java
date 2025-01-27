@@ -9,20 +9,20 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
 @Data
-public class Order {
+@Entity
+public class SellerOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "order_id")
-    private Long id;
+    @Column(name = "seller_order_id")
+    private Long sellerOrderId;
 
     @ManyToOne
-    @JoinColumn(name = "buyer_id", nullable = false)
-    private Buyer buyer;
+    @JoinColumn(name = "seller_id", nullable = false)
+    private Seller seller;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "sellerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)
@@ -32,5 +32,4 @@ public class Order {
     @Column(nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
 }

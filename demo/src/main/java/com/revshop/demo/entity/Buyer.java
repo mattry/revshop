@@ -16,6 +16,6 @@ public class Buyer extends User {
     private Cart cart;
 
     @OneToMany(mappedBy = "buyer")
-    private List<Order> orders;
+    private List<BuyerOrder> orders;
 
 }

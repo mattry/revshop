@@ -15,7 +15,7 @@ public class Seller extends User {
     private List<Product> products;
 
     @OneToMany(mappedBy = "seller")
-    private List<Order> orders;
+    private List<SellerOrder> orders;
 
     @Column
     private String businessName;
