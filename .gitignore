@@ -83,3 +83,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# H2 database files
+demo/data/*
