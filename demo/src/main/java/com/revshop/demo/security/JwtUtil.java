@@ -15,9 +15,11 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    private String jwtSecret = "placeholder";
+    @Value("${demo.app.jwtSecret}")
+    private String jwtSecret;
 
-    private int jwtExpirationInMinutes = 15;
+    @Value("${demo.app.jwtExpirationinMinutes}")
+    private int jwtExpirationInMinutes;
 
     public String generateToken(String username) {
         return Jwts.builder()
