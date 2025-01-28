@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchConnect
 @Data
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@Table(name="users")
 public abstract class User {
 
     @Id
