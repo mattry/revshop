@@ -2,6 +2,7 @@ package com.revshop.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchConnectionDetails;
 
 @Data
 @Entity
@@ -18,6 +19,9 @@ public abstract class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(unique = true, nullable = false)
+    private String username;
 
     private String firstName;
     private String lastName;
