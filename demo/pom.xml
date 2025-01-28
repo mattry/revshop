@@ -146,6 +146,7 @@
 						<!-- optional: default phase is "generate-resources" -->
 						<phase>generate-resources</phase>
 					</execution>
+
 					<execution>
 						<id>yarn-install</id>
 						<goals>
@@ -155,6 +156,7 @@
 							<arguments>install</arguments>
 						</configuration>
 					</execution>
+
 					<execution>
 						<id>build-ui</id>
 						<goals>
@@ -165,6 +167,7 @@
 						</configuration>
 						<phase>prepare-package</phase>
 					</execution>
+					
 				</executions>
 			</plugin>
 			<plugin>
