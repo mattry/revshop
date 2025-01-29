@@ -31,19 +31,27 @@ public class AuthController {
     }
 
     @PostMapping("/buyerRegister")
-    private ResponseEntity<String> registerBuyer(@RequestBody Buyer user) {
+    private ResponseEntity<UserDTO> registerBuyer(@RequestBody Buyer user, HttpServletResponse response) {
         String token = userService.registerUser(user);
-        return ResponseEntity.status(200).header("Authorization", "Bearer " + token).body("User created");
+        UserDTO userDTO = userService.makeLoginDTO(user);
+
+        setCookie(response, token);
+
+        return ResponseEntity.ok(userDTO);
     }
 
     @PostMapping("/sellerRegister")
-    private ResponseEntity<String> registerSeller(@RequestBody Seller user) {
+    private ResponseEntity<UserDTO> registerSeller(@RequestBody Seller user, HttpServletResponse response) {
         String token = userService.registerUser(user);
-        return ResponseEntity.status(200).header("Authorization", "Bearer " + token).body("User created");
+        UserDTO userDTO = userService.makeLoginDTO(user);
+
+        setCookie(response, token);
+
+        return ResponseEntity.ok(userDTO);
     }
 
     @PostMapping("/login")
-    private ResponseEntity<UserDTO> loginBuyer(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
+    private ResponseEntity<UserDTO> login(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
         try {
             String token = userService.loginUser(authDTO.getUsername(), authDTO.getPassword());
             User user = userService.getUserByUsername(authDTO.getUsername());
