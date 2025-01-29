@@ -1,7 +1,5 @@
 package com.revshop.demo.dto;
 
-import com.revshop.demo.entity.User.Role;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,5 +16,5 @@ public class UserDTO {
 
     private Long userId;
 
-    private Role role;
+    private String role;
 }
