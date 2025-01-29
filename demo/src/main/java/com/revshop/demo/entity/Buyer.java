@@ -18,4 +18,8 @@ public class Buyer extends User {
     @OneToMany(mappedBy = "buyer")
     private List<BuyerOrder> orders;
 
+    public Buyer() {
+        super();
+    }
+
 }

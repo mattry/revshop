@@ -1,0 +1,80 @@
+package com.revshop.demo.service;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.revshop.demo.dto.UserDTO;
+import com.revshop.demo.entity.User;
+import com.revshop.demo.repository.UserRepository;
+import com.revshop.demo.security.JwtUtil;
+
+@Service
+public class UserService {
+
+    private final JwtUtil jwtUtil;
+
+    private final UserRepository userRepository;
+
+    private final AuthenticationManager authenticationManager;
+
+    @Autowired
+    public UserService(JwtUtil jwtUtil, UserRepository userRepository, AuthenticationManager authenticationManager) {
+        this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
+    }
+
+    public String registerUser(User user) {
+        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        userRepository.save(user);
+        return jwtUtil.generateToken(user.getUsername());
+    }
+
+    public String loginUser(User user) throws AuthenticationException {
+        if (user.getUsername() == null || user.getPassword() == null ||
+            user.getUsername().isEmpty() || user.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            return jwtUtil.generateToken(user.getUsername());
+        } catch (BadCredentialsException e) {
+            throw new RuntimeException("Invalid username or password");
+        }
+    }
+
+    public UserDTO mapToDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setUsername(user.getUsername());
+        dto.setUserId(user.getId());
+        return dto;
+    }
+
+    public UserDTO makeLoginDTO(User user) {
+        User loggedIn = getUserByUsername(user.getUsername());
+        return mapToDTO(loggedIn);
+    }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Username does not exist"));
+    }
+
+    public UserDTO getUserById(Long userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if(userOptional.isPresent()){
+            User user = userOptional.get();
+            return mapToDTO(user);
+        } else {
+            throw new RuntimeException("Invalid user id");
+        }
+    }
+}
