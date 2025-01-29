@@ -32,6 +32,9 @@ public class UserService {
     }
 
     public String registerUser(User user) {
+        if (user.getRole() == null) {
+            user.setRole(User.Role.BUYER); // Default to BUYER
+        }
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         userRepository.save(user);
         return jwtUtil.generateToken(user.getUsername());
@@ -41,6 +44,9 @@ public class UserService {
         if (user.getUsername() == null || user.getPassword() == null ||
             user.getUsername().isEmpty() || user.getPassword().isEmpty()) {
             throw new IllegalArgumentException("Invalid username or password");
+        }
+        if (user.getRole() == null) {
+            user.setRole(User.Role.BUYER);
         }
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
@@ -56,6 +62,7 @@ public class UserService {
         dto.setLastName(user.getLastName());
         dto.setUsername(user.getUsername());
         dto.setUserId(user.getId());
+        dto.setRole(user.getRole());
         return dto;
     }
 
