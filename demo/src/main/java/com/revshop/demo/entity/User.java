@@ -14,11 +14,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
-    property = "type"
+    property = "role"
 )
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = Buyer.class, name = "buyer"),
-    @JsonSubTypes.Type(value = Seller.class, name = "seller")
+    @JsonSubTypes.Type(value = Buyer.class, name = "BUYER"),
+    @JsonSubTypes.Type(value = Seller.class, name = "SELLER")
 })
 public abstract class User {
 
