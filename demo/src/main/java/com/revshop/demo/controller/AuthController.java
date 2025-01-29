@@ -2,16 +2,15 @@ package com.revshop.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.revshop.demo.dto.UserDTO;
 import com.revshop.demo.entity.Buyer;
 import com.revshop.demo.entity.Seller;
 import com.revshop.demo.entity.User;
 import com.revshop.demo.service.UserService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -47,5 +46,12 @@ public class AuthController {
         String token = userService.loginUser(user);
         UserDTO usersDTO = userService.makeLoginDTO(user);
         return ResponseEntity.status(200).header("Authorization", "Bearer "+token).body(usersDTO);
+    }
+
+    // testing purposes only
+    @GetMapping("/all")
+    private ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> dtos = userService.getAllUsers();
+        return ResponseEntity.status(200).body(dtos);
     }
 }
