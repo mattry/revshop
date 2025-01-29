@@ -19,4 +19,8 @@ public class Seller extends User {
 
     @Column
     private String businessName;
+
+    public Seller() {
+        super();
+    }
 }
