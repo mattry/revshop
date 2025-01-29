@@ -1,15 +1,15 @@
 package com.revshop.demo.entity;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.validator.constraints.Range;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.validator.constraints.Range;
-
-import java.security.Timestamp;
-import java.time.LocalDateTime;
 
 @Data
 @Entity
