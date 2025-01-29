@@ -11,15 +11,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users")
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "role"
-)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = Buyer.class, name = "BUYER"),
-    @JsonSubTypes.Type(value = Seller.class, name = "SELLER")
-})
 public abstract class User {
 
     @Id
