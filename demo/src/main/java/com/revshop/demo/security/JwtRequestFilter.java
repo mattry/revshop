@@ -2,6 +2,7 @@ package com.revshop.demo.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +34,30 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String username = null;
         String jwtToken = null;
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwtToken = authHeader.substring(7);
-            try {
-                username = jwtUtil.extractUsername(jwtToken);
-            } catch (IllegalArgumentException e) {
-                logger.error(e.getMessage());
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    jwtToken = cookie.getValue();
+                }
             }
         }
+
+        if (jwtToken != null) {
+            try {
+                username = jwtUtil.extractUsername(jwtToken);
+            } catch (Exception e) {
+                logger.error("Invalid JWT token: " + e.getMessage());
+            }
+        }
+
+//        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+//            jwtToken = authHeader.substring(7);
+//            try {
+//                username = jwtUtil.extractUsername(jwtToken);
+//            } catch (IllegalArgumentException e) {
+//                logger.error(e.getMessage());
+//            }
+//        }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
