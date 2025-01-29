@@ -1,5 +1,7 @@
 package com.revshop.demo.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,12 +58,23 @@ public class UserService {
         dto.setLastName(user.getLastName());
         dto.setUsername(user.getUsername());
         dto.setUserId(user.getId());
+        dto.setRole(user.getRole().name());
         return dto;
     }
 
     public UserDTO makeLoginDTO(User user) {
         User loggedIn = getUserByUsername(user.getUsername());
         return mapToDTO(loggedIn);
+    }
+
+    public List<UserDTO> getAllUsers() {
+        List<UserDTO> dtos = new ArrayList<>();
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            dtos.add(mapToDTO(user));
+        }
+
+        return dtos;
     }
 
     public User getUserByUsername(String username) {
