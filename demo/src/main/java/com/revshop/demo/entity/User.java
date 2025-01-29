@@ -28,7 +28,7 @@ public abstract class User {
     private String lastName;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role = Role.BUYER;
 
     public enum Role {
         BUYER,
