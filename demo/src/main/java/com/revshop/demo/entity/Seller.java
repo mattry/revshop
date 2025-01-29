@@ -1,11 +1,11 @@
 package com.revshop.demo.entity;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
-
-import java.util.List;
 
 @Entity
 @Data
