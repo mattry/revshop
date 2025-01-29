@@ -1,5 +1,7 @@
 package com.revshop.demo.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +31,13 @@ public class AuthController {
     }
 
     @PostMapping("/buyerLogin")
-    private ResponseEntity<UserDTO> loginBuyer(@RequestBody Buyer user) {
+    private ResponseEntity<UserDTO> loginBuyer(@RequestBody Buyer user, HttpServletResponse response) {
         String token = userService.loginUser(user);
         UserDTO usersDTO = userService.makeLoginDTO(user);
-        return ResponseEntity.status(200).header("Authorization", "Bearer "+token).body(usersDTO);
+
+        setCookie(response, token);
+
+        return ResponseEntity.ok(usersDTO);
     }
 
     @PostMapping("/sellerRegister")
@@ -42,10 +47,13 @@ public class AuthController {
     }
 
     @PostMapping("/sellerLogin")
-    private ResponseEntity<UserDTO> loginSeller(@RequestBody Seller user) {
+    private ResponseEntity<UserDTO> loginSeller(@RequestBody Seller user, HttpServletResponse response) {
         String token = userService.loginUser(user);
         UserDTO usersDTO = userService.makeLoginDTO(user);
-        return ResponseEntity.status(200).header("Authorization", "Bearer "+token).body(usersDTO);
+
+        setCookie(response, token);
+
+        return ResponseEntity.ok(usersDTO);
     }
 
     // testing purposes only
@@ -53,5 +61,15 @@ public class AuthController {
     private ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> dtos = userService.getAllUsers();
         return ResponseEntity.status(200).body(dtos);
+    }
+
+    private void setCookie(HttpServletResponse response, String token) {
+        Cookie cookie = new Cookie("jwt", token);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        // time in seconds
+        cookie.setMaxAge(1800);
+
+        response.addCookie(cookie);
     }
 }
