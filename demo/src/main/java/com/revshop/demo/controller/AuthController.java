@@ -1,64 +1,90 @@
 package com.revshop.demo.controller;
 
-import java.util.List;
-
+import com.revshop.demo.dto.AuthDTO;
+import com.revshop.demo.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 import com.revshop.demo.dto.UserDTO;
 import com.revshop.demo.entity.Buyer;
 import com.revshop.demo.entity.Seller;
+import com.revshop.demo.entity.User;
 import com.revshop.demo.service.UserService;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, UserRepository userRepository) {
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/buyerRegister")
-    private ResponseEntity<String> registerBuyer(@RequestBody Buyer user) {
+    private ResponseEntity<UserDTO> registerBuyer(@RequestBody Buyer user, HttpServletResponse response) {
         String token = userService.registerUser(user);
-        return ResponseEntity.status(200).header("Authorization", "Bearer " + token).body("User created");
-    }
-
-    @PostMapping("/buyerLogin")
-    private ResponseEntity<UserDTO> loginBuyer(@RequestBody Buyer user, HttpServletResponse response) {
-        String token = userService.loginUser(user);
-        UserDTO usersDTO = userService.makeLoginDTO(user);
+        UserDTO userDTO = userService.makeLoginDTO(user);
 
         setCookie(response, token);
 
-        return ResponseEntity.ok(usersDTO);
+        return ResponseEntity.ok(userDTO);
     }
 
     @PostMapping("/sellerRegister")
-    private ResponseEntity<String> registerSeller(@RequestBody Seller user) {
+    private ResponseEntity<UserDTO> registerSeller(@RequestBody Seller user, HttpServletResponse response) {
         String token = userService.registerUser(user);
-        return ResponseEntity.status(200).header("Authorization", "Bearer " + token).body("User created");
-    }
-
-    @PostMapping("/sellerLogin")
-    private ResponseEntity<UserDTO> loginSeller(@RequestBody Seller user, HttpServletResponse response) {
-        String token = userService.loginUser(user);
-        UserDTO usersDTO = userService.makeLoginDTO(user);
+        UserDTO userDTO = userService.makeLoginDTO(user);
 
         setCookie(response, token);
 
-        return ResponseEntity.ok(usersDTO);
+        return ResponseEntity.ok(userDTO);
     }
+
+    @PostMapping("/login")
+    private ResponseEntity<UserDTO> login(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
+        try {
+            String token = userService.loginUser(authDTO.getUsername(), authDTO.getPassword());
+            User user = userService.getUserByUsername(authDTO.getUsername());
+            UserDTO userDTO = userService.makeLoginDTO(user);
+
+            setCookie(response, token);
+
+            return ResponseEntity.ok(userDTO);
+        } catch (AuthenticationException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+//    @PostMapping("/buyerLogin")
+//    private ResponseEntity<UserDTO> loginBuyer(@RequestBody Buyer user, HttpServletResponse response) {
+//        String token = userService.loginUser(user);
+//        UserDTO userDTO = userService.makeLoginDTO(user);
+//
+//        setCookie(response, token);
+//
+//        return ResponseEntity.ok(userDTO);
+//    }
+//
+//    @PostMapping("/sellerLogin")
+//    private ResponseEntity<UserDTO> loginSeller(@RequestBody Seller user, HttpServletResponse response) {
+//        String token = userService.loginUser(user);
+//        UserDTO usersDTO = userService.makeLoginDTO(user);
+//
+//        setCookie(response, token);
+//
+//        return ResponseEntity.ok(usersDTO);
+//    }
 
     // testing purposes only
     @GetMapping("/all")

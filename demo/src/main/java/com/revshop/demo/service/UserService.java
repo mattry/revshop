@@ -42,17 +42,14 @@ public class UserService {
         return jwtUtil.generateToken(user.getUsername());
     }
 
-    public String loginUser(User user) throws AuthenticationException {
-        if (user.getUsername() == null || user.getPassword() == null ||
-            user.getUsername().isEmpty() || user.getPassword().isEmpty()) {
+    public String loginUser(String username, String password) throws AuthenticationException {
+        if (username == null || password == null ||
+            username.isEmpty() || password.isEmpty()) {
             throw new IllegalArgumentException("Invalid username or password");
         }
-        if (user.getRole() == null) {
-            user.setRole(User.Role.BUYER);
-        }
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-            return jwtUtil.generateToken(user.getUsername());
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            return jwtUtil.generateToken(username);
         } catch (BadCredentialsException e) {
             throw new RuntimeException("Invalid username or password");
         }

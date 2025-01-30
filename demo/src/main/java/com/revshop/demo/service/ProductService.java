@@ -3,6 +3,9 @@ package com.revshop.demo.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.revshop.demo.dto.ProductRequestDTO;
+import com.revshop.demo.entity.Seller;
+import com.revshop.demo.repository.SellerRepository;
 import org.springframework.stereotype.Service;
 
 import com.revshop.demo.dto.ProductDTO;
@@ -19,11 +22,15 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
     private final OrderItemRepository orderItemRepository;
+    private final SellerRepository sellerRepository;
+    private final InventoryService inventoryService;
 
-    public ProductService(ProductRepository productRepository, ReviewRepository reviewRepository, OrderItemRepository orderItemRepository) {
+    public ProductService(ProductRepository productRepository, ReviewRepository reviewRepository, OrderItemRepository orderItemRepository, SellerRepository sellerRepository, InventoryService inventoryService) {
         this.productRepository = productRepository;
         this.reviewRepository = reviewRepository;
         this.orderItemRepository = orderItemRepository;
+        this.sellerRepository = sellerRepository;
+        this.inventoryService = inventoryService;
     }
 
     public List<ProductDTO> getAllProducts() {
@@ -35,13 +42,13 @@ public class ProductService {
 
     private ProductDTO convertToDTO(Product product) {
         ProductDTO dto = new ProductDTO();
-        dto.setProductId(product.getProductId());
+        dto.setProductId(product.getId());
         dto.setName(product.getName());
         dto.setPrice(product.getPrice());
         dto.setDescription(product.getDescription());
-        dto.setSeller(product.getSeller());
+        dto.setSellerId(product.getSeller().getId());
 
-        List<ReviewDTO> reviews = reviewRepository.findByProductId(product.getProductId()).stream()
+        List<ReviewDTO> reviews = reviewRepository.findByProductId(product.getId()).stream()
                 .map(this::convertToReviewDTO)
                 .collect(Collectors.toList());
         dto.setReviews(reviews);
@@ -67,11 +74,13 @@ public class ProductService {
 
     private Product convertToEntity(ProductDTO dto) {
         Product product = new Product();
-        product.setProductId(dto.getProductId());  // Usually auto-generated
+        Seller seller = sellerRepository.findById(dto.getSellerId())
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
+        product.setId(dto.getProductId());  // Usually auto-generated
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
-        product.setSeller(dto.getSeller()); // Assuming Seller is provided in DTO
+        product.setSeller(seller); // Assuming Seller is provided in DTO
         return product;
     }
 
@@ -96,6 +105,36 @@ public class ProductService {
         }
     
         productRepository.delete(product);
+    }
+
+    public ProductDTO createProductForSeller(Long sellerId, ProductRequestDTO requestDTO) {
+        Seller seller = sellerRepository.findById(sellerId).orElseThrow(() -> new RuntimeException("Seller not found"));
+
+        Product product = new Product();
+        product.setSeller(seller);
+        product.setName(requestDTO.getName());
+        product.setDescription(requestDTO.getDescription());
+        product.setPrice(requestDTO.getPrice());
+
+        Product saved = productRepository.save(product);
+
+        inventoryService.addProductToInventory(seller, saved, requestDTO.getStock());
+
+        return convertToDTO(saved);
+    }
+
+    public ProductDTO updateProduct(Long sellerId, Long productId, ProductRequestDTO requestDTO) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!product.getSeller().getId().equals(sellerId)) {
+            throw new RuntimeException("Unauthorized: You can only update your own products.");
+        }
+
+        product.setName(requestDTO.getName());
+        product.setDescription(requestDTO.getDescription());
+        product.setPrice(requestDTO.getPrice());
+
+        return convertToDTO(product);
     }
     
 
