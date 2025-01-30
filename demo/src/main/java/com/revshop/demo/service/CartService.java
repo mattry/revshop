@@ -1,10 +1,15 @@
 package com.revshop.demo.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.revshop.demo.dto.CartDTO;
+import com.revshop.demo.dto.CartItemDTO;
 import com.revshop.demo.entity.Buyer;
 import com.revshop.demo.entity.Cart;
 import com.revshop.demo.entity.CartItem;
@@ -67,5 +72,26 @@ public class CartService {
         cart.setBuyer(buyer);
         cart.setCartItems(new ArrayList<>());
         return cartRepository.save(cart);
+    }
+
+    public CartDTO getCartDetails(Long buyerId) {
+        Cart cart = cartRepository.findByBuyerId(buyerId)
+                .orElseThrow(() -> new RuntimeException("Cart not found for buyer"));
+
+        List<CartItemDTO> items = cart.getCartItems().stream()
+                .map(item -> new CartItemDTO(
+                        item.getProduct().getId(),
+                        item.getProduct().getName(),
+                        item.getProduct().getPrice(),
+                        item.getQuantity(),
+                        item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
+                ))
+                .collect(Collectors.toList());
+
+        BigDecimal total = items.stream()
+                .map(CartItemDTO::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new CartDTO(cart.getId(), cart.getBuyer().getId(), items, total);
     }
 }
