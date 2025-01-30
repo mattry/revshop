@@ -1,5 +1,6 @@
 package com.revshop.demo.service;
 
+import com.revshop.demo.dto.InventoryItemDTO;
 import com.revshop.demo.entity.Inventory;
 import com.revshop.demo.entity.InventoryItem;
 import com.revshop.demo.entity.Product;
@@ -10,6 +11,7 @@ import com.revshop.demo.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class InventoryService {
@@ -33,10 +35,11 @@ public class InventoryService {
                 .orElseGet(() -> createInventory(seller));
     }
 
-    public List<InventoryItem> getInventoryItems(Long sellerId) {
+    public List<InventoryItemDTO> getInventoryItems(Long sellerId) {
         Inventory inventory = inventoryRepository.findBySellerId(sellerId)
                 .orElseThrow(() -> new IllegalArgumentException("Inventory not found for seller"));
-        return inventory.getInventoryItems();
+        return inventory.getInventoryItems().stream().map(item ->
+                mapToDTO(item)).collect(Collectors.toList());
     }
 
     public void addProductToInventory(Seller seller, Product product, int quantity) {
@@ -50,13 +53,22 @@ public class InventoryService {
         inventoryItemRepository.save(item);
     }
 
-    public InventoryItem updateInventoryQuantity(Long inventoryItemId, int quantity) {
+    public InventoryItemDTO updateInventoryQuantity(Long inventoryItemId, int quantity) {
 
         InventoryItem item = inventoryItemRepository.findById(inventoryItemId)
                 .orElseThrow(()-> new RuntimeException("Item not found"));
 
         item.setQuantity(quantity);
 
-        return inventoryItemRepository.save(item);
+        return mapToDTO(inventoryItemRepository.save(item));
+    }
+
+    public InventoryItemDTO mapToDTO (InventoryItem inventoryItem) {
+        InventoryItemDTO inventoryItemDTO = new InventoryItemDTO();
+        inventoryItemDTO.setId(inventoryItem.getId());
+        inventoryItemDTO.setProductName(inventoryItem.getProduct().getName());
+        inventoryItemDTO.setQuantity(inventoryItem.getQuantity());
+
+        return inventoryItemDTO;
     }
 }

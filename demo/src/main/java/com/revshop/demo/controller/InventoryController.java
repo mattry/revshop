@@ -1,5 +1,6 @@
 package com.revshop.demo.controller;
 
+import com.revshop.demo.dto.InventoryItemDTO;
 import com.revshop.demo.entity.InventoryItem;
 import com.revshop.demo.service.InventoryService;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +19,14 @@ public class InventoryController {
     }
 
     @GetMapping("/{sellerId}")
-    public ResponseEntity<List<InventoryItem>> getInventory(@PathVariable Long sellerId) {
-        List<InventoryItem> inventoryItems = inventoryService.getInventoryItems(sellerId);
+    public ResponseEntity<List<InventoryItemDTO>> getInventory(@PathVariable Long sellerId) {
+        List<InventoryItemDTO> inventoryItems = inventoryService.getInventoryItems(sellerId);
         return ResponseEntity.ok().body(inventoryItems);
     }
 
     @PatchMapping("/{inventoryItemId}/update-quantity")
-    public ResponseEntity<InventoryItem> updateStock(@PathVariable Long inventoryItemId, @RequestBody InventoryItem inventoryItem) {
-        InventoryItem updated = inventoryService.updateInventoryQuantity(inventoryItemId, inventoryItem.getQuantity());
+    public ResponseEntity<InventoryItemDTO> updateStock(@PathVariable Long inventoryItemId, @RequestBody InventoryItem inventoryItem) {
+        InventoryItemDTO updated = inventoryService.updateInventoryQuantity(inventoryItemId, inventoryItem.getQuantity());
         return ResponseEntity.ok().body(updated);
     }
 
