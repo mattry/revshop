@@ -35,13 +35,13 @@ public class ProductService {
 
     private ProductDTO convertToDTO(Product product) {
         ProductDTO dto = new ProductDTO();
-        dto.setProductId(product.getProductId());
+        dto.setProductId(product.getId());
         dto.setName(product.getName());
         dto.setPrice(product.getPrice());
         dto.setDescription(product.getDescription());
         dto.setSeller(product.getSeller());
 
-        List<ReviewDTO> reviews = reviewRepository.findByProductId(product.getProductId()).stream()
+        List<ReviewDTO> reviews = reviewRepository.findByProductId(product.getId()).stream()
                 .map(this::convertToReviewDTO)
                 .collect(Collectors.toList());
         dto.setReviews(reviews);
@@ -67,7 +67,7 @@ public class ProductService {
 
     private Product convertToEntity(ProductDTO dto) {
         Product product = new Product();
-        product.setProductId(dto.getProductId());  // Usually auto-generated
+        product.setId(dto.getProductId());  // Usually auto-generated
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
