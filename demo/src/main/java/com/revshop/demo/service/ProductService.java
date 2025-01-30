@@ -46,7 +46,7 @@ public class ProductService {
         dto.setName(product.getName());
         dto.setPrice(product.getPrice());
         dto.setDescription(product.getDescription());
-        dto.setSeller(product.getSeller());
+        dto.setSellerId(product.getSeller().getId());
 
         List<ReviewDTO> reviews = reviewRepository.findByProductId(product.getId()).stream()
                 .map(this::convertToReviewDTO)
@@ -74,11 +74,13 @@ public class ProductService {
 
     private Product convertToEntity(ProductDTO dto) {
         Product product = new Product();
+        Seller seller = sellerRepository.findById(dto.getSellerId())
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
         product.setId(dto.getProductId());  // Usually auto-generated
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
-        product.setSeller(dto.getSeller()); // Assuming Seller is provided in DTO
+        product.setSeller(seller); // Assuming Seller is provided in DTO
         return product;
     }
 
@@ -105,7 +107,7 @@ public class ProductService {
         productRepository.delete(product);
     }
 
-    public Product createProductForSeller(Long sellerId, ProductRequestDTO requestDTO) {
+    public ProductDTO createProductForSeller(Long sellerId, ProductRequestDTO requestDTO) {
         Seller seller = sellerRepository.findById(sellerId).orElseThrow(() -> new RuntimeException("Seller not found"));
 
         Product product = new Product();
@@ -118,10 +120,10 @@ public class ProductService {
 
         inventoryService.addProductToInventory(seller, saved, requestDTO.getStock());
 
-        return saved;
+        return convertToDTO(saved);
     }
 
-    public Product updateProduct(Long sellerId, Long productId, ProductRequestDTO requestDTO) {
+    public ProductDTO updateProduct(Long sellerId, Long productId, ProductRequestDTO requestDTO) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
 
         if (!product.getSeller().getId().equals(sellerId)) {
@@ -132,7 +134,7 @@ public class ProductService {
         product.setDescription(requestDTO.getDescription());
         product.setPrice(requestDTO.getPrice());
 
-        return productRepository.save(product);
+        return convertToDTO(product);
     }
     
 

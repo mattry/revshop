@@ -30,20 +30,20 @@ public class SellerController {
     }
 
     @PostMapping("/{sellerId}/products")
-    public ResponseEntity<Product> addProduct(@PathVariable Long sellerId, @RequestBody ProductRequestDTO request) {
-        Product product = productService.createProductForSeller(sellerId, request);
+    public ResponseEntity<ProductDTO> addProduct(@PathVariable Long sellerId, @RequestBody ProductRequestDTO request) {
+        ProductDTO product = productService.createProductForSeller(sellerId, request);
         return ResponseEntity.ok(product);
     }
 
     @PatchMapping("/products/{productId}")
-    public ResponseEntity<Product> updateProduct(Authentication auth, @PathVariable Long productId, @RequestBody ProductRequestDTO request) {
+    public ResponseEntity<ProductDTO> updateProduct(Authentication auth, @PathVariable Long productId, @RequestBody ProductRequestDTO request) {
         Long userId = getUserId(auth);
-        Product updated = productService.updateProduct(userId, productId, request);
+        ProductDTO updated = productService.updateProduct(userId, productId, request);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/products/{productId}")
-    public ResponseEntity<Product> deleteProduct(Authentication auth, @PathVariable Long productId) {
+    public ResponseEntity<?> deleteProduct(Authentication auth, @PathVariable Long productId) {
         productService.deleteProduct(productId, getUserId(auth));
         return ResponseEntity.noContent().build();
     }

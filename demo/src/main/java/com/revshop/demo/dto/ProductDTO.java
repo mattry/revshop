@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class ProductDTO {
     private Long productId;
 
-    private Seller seller;
+    private Long sellerId;
 
     private String name;
 
