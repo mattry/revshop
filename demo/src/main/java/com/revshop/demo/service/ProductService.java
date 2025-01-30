@@ -5,16 +5,14 @@ import java.util.stream.Collectors;
 
 import com.revshop.demo.dto.ProductRequestDTO;
 import com.revshop.demo.entity.Seller;
-import com.revshop.demo.repository.SellerRepository;
+import com.revshop.demo.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.revshop.demo.dto.ProductDTO;
 import com.revshop.demo.dto.ReviewDTO;
 import com.revshop.demo.entity.Product;
 import com.revshop.demo.entity.Review;
-import com.revshop.demo.repository.OrderItemRepository;
-import com.revshop.demo.repository.ProductRepository;
-import com.revshop.demo.repository.ReviewRepository;
 
 @Service
 public class ProductService {
@@ -24,13 +22,15 @@ public class ProductService {
     private final OrderItemRepository orderItemRepository;
     private final SellerRepository sellerRepository;
     private final InventoryService inventoryService;
+    private final InventoryItemRepository inventoryItemRepository;
 
-    public ProductService(ProductRepository productRepository, ReviewRepository reviewRepository, OrderItemRepository orderItemRepository, SellerRepository sellerRepository, InventoryService inventoryService) {
+    public ProductService(ProductRepository productRepository, ReviewRepository reviewRepository, OrderItemRepository orderItemRepository, SellerRepository sellerRepository, InventoryService inventoryService, InventoryItemRepository inventoryItemRepository) {
         this.productRepository = productRepository;
         this.reviewRepository = reviewRepository;
         this.orderItemRepository = orderItemRepository;
         this.sellerRepository = sellerRepository;
         this.inventoryService = inventoryService;
+        this.inventoryItemRepository = inventoryItemRepository;
     }
 
     public List<ProductDTO> getAllProducts() {
@@ -90,6 +90,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void deleteProduct(Long productId, Long sellerId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -103,6 +104,8 @@ public class ProductService {
         if (productInOrder) {
             throw new RuntimeException("Cannot delete product. It is part of an active order.");
         }
+
+        inventoryItemRepository.deleteByProduct(product);
     
         productRepository.delete(product);
     }
@@ -136,6 +139,10 @@ public class ProductService {
 
         return convertToDTO(product);
     }
-    
+
+    public ProductDTO getProductById(Long productId) {
+        return convertToDTO(productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found")));
+    }
 
 }
