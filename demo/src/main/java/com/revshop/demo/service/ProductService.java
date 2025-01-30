@@ -3,6 +3,9 @@ package com.revshop.demo.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.revshop.demo.dto.ProductRequestDTO;
+import com.revshop.demo.entity.Seller;
+import com.revshop.demo.repository.SellerRepository;
 import org.springframework.stereotype.Service;
 
 import com.revshop.demo.dto.ProductDTO;
@@ -19,11 +22,15 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
     private final OrderItemRepository orderItemRepository;
+    private final SellerRepository sellerRepository;
+    private final InventoryService inventoryService;
 
-    public ProductService(ProductRepository productRepository, ReviewRepository reviewRepository, OrderItemRepository orderItemRepository) {
+    public ProductService(ProductRepository productRepository, ReviewRepository reviewRepository, OrderItemRepository orderItemRepository, SellerRepository sellerRepository, InventoryService inventoryService) {
         this.productRepository = productRepository;
         this.reviewRepository = reviewRepository;
         this.orderItemRepository = orderItemRepository;
+        this.sellerRepository = sellerRepository;
+        this.inventoryService = inventoryService;
     }
 
     public List<ProductDTO> getAllProducts() {
@@ -96,6 +103,36 @@ public class ProductService {
         }
     
         productRepository.delete(product);
+    }
+
+    public Product createProductForSeller(Long sellerId, ProductRequestDTO requestDTO) {
+        Seller seller = sellerRepository.findById(sellerId).orElseThrow(() -> new RuntimeException("Seller not found"));
+
+        Product product = new Product();
+        product.setSeller(seller);
+        product.setName(requestDTO.getName());
+        product.setDescription(requestDTO.getDescription());
+        product.setPrice(requestDTO.getPrice());
+
+        Product saved = productRepository.save(product);
+
+        inventoryService.addProductToInventory(seller, saved, requestDTO.getStock());
+
+        return saved;
+    }
+
+    public Product updateProduct(Long sellerId, Long productId, ProductRequestDTO requestDTO) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!product.getSeller().getId().equals(sellerId)) {
+            throw new RuntimeException("Unauthorized: You can only update your own products.");
+        }
+
+        product.setName(requestDTO.getName());
+        product.setDescription(requestDTO.getDescription());
+        product.setPrice(requestDTO.getPrice());
+
+        return productRepository.save(product);
     }
     
 
