@@ -52,4 +52,10 @@ public class ProductController {
         return ResponseEntity.ok("Product deleted successfully.");
     }
 
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long productId) {
+        ProductDTO dto = productService.getProductById(productId);
+        return ResponseEntity.ok(dto);
+    }
+
 }

@@ -1,27 +1,24 @@
 package com.revshop.demo.dto;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import com.revshop.demo.entity.Seller;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class ProductDTO {
-    private Long productId;
+import java.math.BigDecimal;
 
-    private Long sellerId;
+/*
+    DTO meant to represent incoming requests to create products or update products
+ */
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductRequestDTO {
 
     private String name;
-
     private String description;
-
     private BigDecimal price;
+    private int stock;
 
-    private List<ReviewDTO> reviews;
 }
