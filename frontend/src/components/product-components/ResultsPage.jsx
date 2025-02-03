@@ -11,7 +11,7 @@ const ResultsPage = () => {
         {results.length > 0 ? (
           <List>
             {results.map((product) => (
-              <ListItem key={product.productId} button component={Link} to={`/product/${product.productId}`}>
+              <ListItem key={product.productId} button="true" component={Link} to={`/product/${product.productId}`}>
                 <ListItemText primary={product.name} secondary={`Price: $${product.price.toFixed(2)}`}/>
               </ListItem>
             ))}

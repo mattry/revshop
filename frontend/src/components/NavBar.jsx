@@ -7,9 +7,14 @@ import { useState } from "react";
 
 const NavBar = () => {
 
-    const { user } = useUser();
+    const { user, clearUser } = useUser();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
+
+    const handleLogout = () => {
+        clearUser();
+        navigate("/");
+    }
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -25,7 +30,7 @@ const NavBar = () => {
     };
 
     return (
-        <Box sx={{ m: 0, p: 0}}>
+        <Box sx={{ display: "flex", m: 0, p: 0}}>
             <AppBar position="static">
                 <Toolbar sx={{ px: 2}}>
                     <Typography variant="h6" sx={{ flexGrow: 1, ml: 0}}>
@@ -59,8 +64,18 @@ const NavBar = () => {
                         <Button color="inherit" component={Link} to="/">
                             Home
                         </Button>
-                        <Button color="inherit" component={Link} to="/inventory">
-                            Inventory
+                        {user.role === "SELLER" && (
+                            <Button color="inherit" component={Link} to="/inventory">
+                                Inventory
+                            </Button>
+                        )}
+                        {user.role === "BUYER" && (
+                            <Button color="inherit" component={Link} to="/cart">
+                                Cart
+                            </Button>
+                        )}
+                        <Button color="inherit" onClick={handleLogout}>
+                            Logout
                         </Button>
                     </>
                 )}
