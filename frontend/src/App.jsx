@@ -6,6 +6,7 @@ import NavBar from './components/NavBar';
 import InventoryPage from './components/inventory-components/InventoryPage';
 import ProductPage from './components/product-components/ProductPage';
 import ResultsPage from './components/product-components/ResultsPage';
+import CartPage from './components/cart-components/CartPage';
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/inventory" element={<InventoryPage />}/>
           <Route path="/product/:id" element={<ProductPage />}/>
           <Route path="/results" element={<ResultsPage />} />
+          <Route path="/cart" element={<CartPage />} />
         </Routes>
       </Router>
       </UserProvider>

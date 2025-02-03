@@ -23,3 +23,7 @@ export const sellerRegister = async (userInfo) => {
 export const search = async (keyword) => {
     return await api.get(`/product/search?keyword=${keyword}`)
 }
+
+export const addToCart = async (requestBody) => {
+    return await api.post("/cart/add", requestBody);
+}

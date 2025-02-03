@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.revshop.demo.dto.CartRequestDTO;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.revshop.demo.dto.CartDTO;
@@ -34,29 +36,30 @@ public class CartService {
         this.buyerRepository = buyerRepository;
     }
 
-    public void addToCart(Long buyerId, Long productId, int quantity) {
-        Cart cart = cartRepository.findByBuyerId(buyerId)
-                .orElseGet(() -> createNewCart(buyerId));
+    public void addToCart(CartRequestDTO cartRequestDTO) {
+        Cart cart = cartRepository.findByBuyerId(cartRequestDTO.getBuyerId())
+                .orElseGet(() -> createNewCart(cartRequestDTO.getBuyerId()));
 
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findById(cartRequestDTO.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         Optional<CartItem> existingItem = cart.getCartItems().stream()
-                .filter(item -> item.getProduct().getId().equals(productId))
+                .filter(item -> item.getProduct().getId().equals(product.getId()))
                 .findFirst();
 
         if (existingItem.isPresent()) {
-            existingItem.get().setQuantity(existingItem.get().getQuantity() + quantity);
+            existingItem.get().setQuantity(existingItem.get().getQuantity() + cartRequestDTO.getQuantity());
             cartItemRepository.save(existingItem.get());
         } else {
             CartItem newItem = new CartItem();
             newItem.setCart(cart);
             newItem.setProduct(product);
-            newItem.setQuantity(quantity);
+            newItem.setQuantity(cartRequestDTO.getQuantity());
             cartItemRepository.save(newItem);
         }
     }
 
+    @Transactional
     public void removeFromCart(Long buyerId, Long productId) {
         Cart cart = cartRepository.findByBuyerId(buyerId)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
