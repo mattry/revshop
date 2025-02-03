@@ -3,6 +3,7 @@ import api from "../../service/api";
 import { useParams } from "react-router-dom";
 import { useUser } from "../UserContext";
 import UpdateProductForm from "./UpdateProductForm";
+import { Button } from "@mui/material";
 
 
 const ProductPage = () =>{
@@ -37,10 +38,10 @@ const ProductPage = () =>{
                 <>
                     <h1>{product.name}</h1>
                     <h3>{product.description}</h3>
-                    <h3>${product.price.toFixed(2)}</h3>
+                    <h3>${product.price.toFixed(2)}</h3><br/>
 
                     {isUserSeller && (
-                        <button onClick={() => setIsEditing(true)}>Edit Product</button>
+                        <Button variant="outlined" onClick={() => setIsEditing(true)}>Edit Product</Button>
                     )}
                 </>
             ) : (

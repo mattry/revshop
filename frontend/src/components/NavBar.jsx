@@ -25,7 +25,7 @@ const NavBar = () => {
     };
 
     return (
-        <Box sx={{ m: 0, p: 0}}>
+        <Box sx={{ display: "flex", m: 0, p: 0}}>
             <AppBar position="static">
                 <Toolbar sx={{ px: 2}}>
                     <Typography variant="h6" sx={{ flexGrow: 1, ml: 0}}>
@@ -42,6 +42,7 @@ const NavBar = () => {
                                 borderRadius: "4px",
                                 padding: "4px 10px",
                                 ml: 2,
+                                alignSelf: "center",
                             }}
                             >
                             <InputBase
