@@ -22,76 +22,102 @@ import com.revshop.demo.repository.ProductRepository;
 @Service
 public class CartService {
 
-    private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
-    private final ProductRepository productRepository;
-    private final BuyerRepository buyerRepository; 
+        private final CartRepository cartRepository;
+        private final CartItemRepository cartItemRepository;
+        private final ProductRepository productRepository;
+        private final BuyerRepository buyerRepository;
 
-    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository, BuyerRepository buyerRepository) {
-        this.cartRepository = cartRepository;
-        this.cartItemRepository = cartItemRepository;
-        this.productRepository = productRepository;
-        this.buyerRepository = buyerRepository;
-    }
-
-    public void addToCart(Long buyerId, Long productId, int quantity) {
-        Cart cart = cartRepository.findByBuyerId(buyerId)
-                .orElseGet(() -> createNewCart(buyerId));
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        Optional<CartItem> existingItem = cart.getCartItems().stream()
-                .filter(item -> item.getProduct().getId().equals(productId))
-                .findFirst();
-
-        if (existingItem.isPresent()) {
-            existingItem.get().setQuantity(existingItem.get().getQuantity() + quantity);
-            cartItemRepository.save(existingItem.get());
-        } else {
-            CartItem newItem = new CartItem();
-            newItem.setCart(cart);
-            newItem.setProduct(product);
-            newItem.setQuantity(quantity);
-            cartItemRepository.save(newItem);
+        public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository,
+                        ProductRepository productRepository, BuyerRepository buyerRepository) {
+                this.cartRepository = cartRepository;
+                this.cartItemRepository = cartItemRepository;
+                this.productRepository = productRepository;
+                this.buyerRepository = buyerRepository;
         }
-    }
 
-    public void removeFromCart(Long buyerId, Long productId) {
-        Cart cart = cartRepository.findByBuyerId(buyerId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+        public void addToCart(Long buyerId, Long productId, int quantity) {
+                Cart cart = cartRepository.findByBuyerId(buyerId)
+                                .orElseGet(() -> createNewCart(buyerId));
 
-        cartItemRepository.deleteByCartIdAndProductId(cart.getId(), productId);
-    }
+                Product product = productRepository.findById(productId)
+                                .orElseThrow(() -> new RuntimeException("Product not found"));
 
-    private Cart createNewCart(Long buyerId) {
-        Buyer buyer = buyerRepository.findById(buyerId)
-                .orElseThrow(() -> new RuntimeException("Buyer not found"));
+                Optional<CartItem> existingItem = cart.getCartItems().stream()
+                                .filter(item -> item.getProduct().getId().equals(productId))
+                                .findFirst();
 
-        Cart cart = new Cart();
-        cart.setBuyer(buyer);
-        cart.setCartItems(new ArrayList<>());
-        return cartRepository.save(cart);
-    }
+                if (existingItem.isPresent()) {
+                        existingItem.get().setQuantity(existingItem.get().getQuantity() + quantity);
+                        cartItemRepository.save(existingItem.get());
+                } else {
+                        CartItem newItem = new CartItem();
+                        newItem.setCart(cart);
+                        newItem.setProduct(product);
+                        newItem.setQuantity(quantity);
+                        cartItemRepository.save(newItem);
+                }
+        }
 
-    public CartDTO getCartDetails(Long buyerId) {
-        Cart cart = cartRepository.findByBuyerId(buyerId)
-                .orElseThrow(() -> new RuntimeException("Cart not found for buyer"));
+        public void removeFromCart(Long buyerId, Long productId) {
+                Cart cart = cartRepository.findByBuyerId(buyerId)
+                                .orElseThrow(() -> new RuntimeException("Cart not found"));
 
-        List<CartItemDTO> items = cart.getCartItems().stream()
-                .map(item -> new CartItemDTO(
-                        item.getProduct().getId(),
-                        item.getProduct().getName(),
-                        item.getProduct().getPrice(),
-                        item.getQuantity(),
-                        item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
-                ))
-                .collect(Collectors.toList());
+                cartItemRepository.deleteByCartIdAndProductId(cart.getId(), productId);
+        }
 
-        BigDecimal total = items.stream()
-                .map(CartItemDTO::getSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        private Cart createNewCart(Long buyerId) {
+                Buyer buyer = buyerRepository.findById(buyerId)
+                                .orElseThrow(() -> new RuntimeException("Buyer not found"));
 
-        return new CartDTO(cart.getId(), cart.getBuyer().getId(), items, total);
-    }
+                Cart cart = new Cart();
+                cart.setBuyer(buyer);
+                cart.setCartItems(new ArrayList<>());
+                return cartRepository.save(cart);
+        }
+
+        public CartDTO getCartDetails(Long buyerId) {
+                Cart cart = cartRepository.findByBuyerId(buyerId)
+                                .orElseThrow(() -> new RuntimeException("Cart not found for buyer"));
+
+                List<CartItemDTO> items = cart.getCartItems().stream()
+                                .map(item -> new CartItemDTO(
+                                                item.getProduct().getId(),
+                                                item.getProduct().getName(),
+                                                item.getProduct().getPrice(),
+                                                item.getQuantity(),
+                                                item.getProduct().getPrice()
+                                                                .multiply(BigDecimal.valueOf(item.getQuantity()))))
+                                .collect(Collectors.toList());
+
+                BigDecimal total = items.stream()
+                                .map(CartItemDTO::getSubtotal)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                return new CartDTO(cart.getId(), cart.getBuyer().getId(), items, total);
+        }
+
+        public void updateCartItem(Long buyerId, Long productId, int quantity) {
+                if (quantity < 0) {
+                        throw new IllegalArgumentException("Quantity cannot be negative.");
+                }
+
+                Cart cart = cartRepository.findByBuyerId(buyerId)
+                                .orElseThrow(() -> new RuntimeException("Cart not found for buyer"));
+
+                Optional<CartItem> cartItemOptional = cart.getCartItems().stream()
+                                .filter(item -> item.getProduct().getId().equals(productId))
+                                .findFirst();
+
+                if (cartItemOptional.isPresent()) {
+                        CartItem cartItem = cartItemOptional.get();
+                        if (quantity == 0) {
+                                cartItemRepository.delete(cartItem); // Remove item if quantity is set to zero
+                        } else {
+                                cartItem.setQuantity(quantity);
+                                cartItemRepository.save(cartItem);
+                        }
+                } else {
+                        throw new RuntimeException("Product not found in cart.");
+                }
+        }
 }
