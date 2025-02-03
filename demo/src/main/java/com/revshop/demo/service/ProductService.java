@@ -137,6 +137,8 @@ public class ProductService {
         product.setDescription(requestDTO.getDescription());
         product.setPrice(requestDTO.getPrice());
 
+        productRepository.save(product);
+
         return convertToDTO(product);
     }
 
