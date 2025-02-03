@@ -37,7 +37,7 @@ const ProductPage = () =>{
                 <>
                     <h1>{product.name}</h1>
                     <h3>{product.description}</h3>
-                    <h3>${product.price}</h3>
+                    <h3>${product.price.toFixed(2)}</h3>
 
                     {isUserSeller && (
                         <button onClick={() => setIsEditing(true)}>Edit Product</button>
