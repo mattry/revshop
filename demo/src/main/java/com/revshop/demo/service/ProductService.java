@@ -1,5 +1,6 @@
 package com.revshop.demo.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -137,12 +138,28 @@ public class ProductService {
         product.setDescription(requestDTO.getDescription());
         product.setPrice(requestDTO.getPrice());
 
+        productRepository.save(product);
+
         return convertToDTO(product);
     }
 
     public ProductDTO getProductById(Long productId) {
         return convertToDTO(productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found")));
+    }
+
+    public List<ProductDTO> searchProducts(String query) {
+        if (query == null || query.isEmpty()) {
+            throw new RuntimeException("Search query cannot be empty");
+        }
+
+        List<Product> products = productRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query);
+        List<ProductDTO> dtos = new ArrayList<>();
+        for (Product product : products) {
+            dtos.add(convertToDTO(product));
+        }
+
+        return dtos;
     }
 
 }

@@ -19,3 +19,7 @@ export const buyerRegister = async (userInfo) => {
 export const sellerRegister = async (userInfo) => {
     return await api.post("/auth/sellerRegister", userInfo)
 }
+
+export const search = async (keyword) => {
+    return await api.get(`/product/search?keyword=${keyword}`)
+}
