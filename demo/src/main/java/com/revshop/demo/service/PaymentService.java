@@ -24,7 +24,8 @@ public class PaymentService {
                 PaymentIntentCreateParams.builder()
                         .setAmount(amount)
                         .setCurrency(currency)
-                        .setPaymentMethod(paymentMethodId)
+                        .setPaymentMethod("pm_card_visa")
+                        .setConfirm(true)
                         .setAutomaticPaymentMethods(
                                 PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
                                         .setEnabled(true)
@@ -32,6 +33,10 @@ public class PaymentService {
                                         .build()
                         )
                         .build();
-        return PaymentIntent.create(params);
+        PaymentIntent paymentIntent = PaymentIntent.create(params);
+        PaymentIntent.PaymentMethodConfigurationDetails details = paymentIntent.getPaymentMethodConfigurationDetails();
+        details.setId(paymentMethodId);
+
+        return paymentIntent;
     }
 }
