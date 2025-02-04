@@ -97,4 +97,11 @@ public class CartService {
 
         return new CartDTO(cart.getId(), cart.getBuyer().getId(), items, total);
     }
+
+    public List<CartItem> getCartItems(Long buyerId) {
+        Cart cart = cartRepository.findByBuyerId(buyerId)
+                .orElseThrow(() -> new RuntimeException("Cart not found for buyer"));
+
+        return cart.getCartItems();
+    }
 }

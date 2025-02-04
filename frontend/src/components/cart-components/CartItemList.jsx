@@ -1,7 +1,12 @@
 import { Button, List, ListItem, ListItemText } from "@mui/material";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import CheckOutForm from "./CheckOutForm";
 
 const CartItemList = ({ cart, onDelete }) => {
+
+    const [showCheckout, setShowCheckout] = useState(false);
+
     return (
         <>
             <h2>Your Cart</h2>
@@ -26,7 +31,17 @@ const CartItemList = ({ cart, onDelete }) => {
                 </ListItem>
                 ))}
             </List>
-            <h3>Total: ${cart.total.toFixed(2)}</h3>
+            <h3>Total: ${cart.total.toFixed(2)}</h3><br/>
+            <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={() => setShowCheckout(!showCheckout)}
+                style={{ marginTop: "10px" }}
+            >
+                {showCheckout ? "Cancel Checkout" : "Proceed to Checkout"}
+            </Button><br/><br/>
+
+            {showCheckout && <CheckOutForm />}
         </>
     );
 };
