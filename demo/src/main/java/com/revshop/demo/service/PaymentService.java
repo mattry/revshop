@@ -33,10 +33,7 @@ public class PaymentService {
                                         .build()
                         )
                         .build();
-        PaymentIntent paymentIntent = PaymentIntent.create(params);
-        PaymentIntent.PaymentMethodConfigurationDetails details = paymentIntent.getPaymentMethodConfigurationDetails();
-        details.setId(paymentMethodId);
 
-        return paymentIntent;
+        return PaymentIntent.create(params);
     }
 }
