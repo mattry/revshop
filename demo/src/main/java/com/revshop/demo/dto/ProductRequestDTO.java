@@ -1,5 +1,6 @@
 package com.revshop.demo.dto;
 
+import com.revshop.demo.entity.Category;
 import com.revshop.demo.entity.Seller;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,5 +21,6 @@ public class ProductRequestDTO {
     private String description;
     private BigDecimal price;
     private int stock;
+    private Category category;
 
 }

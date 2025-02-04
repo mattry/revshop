@@ -3,7 +3,7 @@ package com.revshop.demo.dto;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.revshop.demo.entity.Seller;
+import com.revshop.demo.entity.Category;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,4 +24,6 @@ public class ProductDTO {
     private BigDecimal price;
 
     private List<ReviewDTO> reviews;
+
+    private Category category;
 }
