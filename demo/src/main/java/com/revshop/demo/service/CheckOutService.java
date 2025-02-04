@@ -29,7 +29,7 @@ public class CheckOutService {
         this.buyerRepository = buyerRepository;
     }
 
-    public void checkOut(Long buyerId) throws StripeException {
+    public void checkOut(Long buyerId, String paymentMethodId) throws StripeException {
         Buyer buyer = buyerRepository.findById(buyerId).orElseThrow(() -> new RuntimeException("Buyer not found"));
         List<CartItem> cartItems = cartService.getCartItems(buyer.getId());
         if (cartItems.isEmpty()) {
@@ -43,7 +43,7 @@ public class CheckOutService {
                 .mapToLong(BigDecimal::longValue)
                 .sum();
 
-        PaymentIntent paymentIntent = paymentService.createPaymentIntent(totalAmount, "usd");
+        PaymentIntent paymentIntent = paymentService.createPaymentIntent(totalAmount, "usd", paymentMethodId);
         if (!"succeeded".equals(paymentIntent.getStatus())) {
             throw new IllegalStateException("Payment failed!");
         }

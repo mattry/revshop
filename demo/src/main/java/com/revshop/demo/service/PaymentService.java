@@ -19,11 +19,18 @@ public class PaymentService {
         Stripe.apiKey = stripeKey;
     }
 
-    public PaymentIntent createPaymentIntent(Long amount, String currency) throws StripeException {
+    public PaymentIntent createPaymentIntent(Long amount, String currency, String paymentMethodId) throws StripeException {
         PaymentIntentCreateParams params =
                 PaymentIntentCreateParams.builder()
                         .setAmount(amount)
                         .setCurrency(currency)
+                        .setPaymentMethod(paymentMethodId)
+                        .setAutomaticPaymentMethods(
+                                PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                                        .setEnabled(true)
+                                        .setAllowRedirects(PaymentIntentCreateParams.AutomaticPaymentMethods.AllowRedirects.NEVER)
+                                        .build()
+                        )
                         .build();
         return PaymentIntent.create(params);
     }
