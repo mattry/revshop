@@ -19,7 +19,7 @@ public class OrderItem {
     private BuyerOrder buyerOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_order_id", nullable = false)
+    @JoinColumn(name = "seller_order_id")
     private SellerOrder sellerOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,6 +1,7 @@
 package com.revshop.demo.service;
 
 import com.revshop.demo.entity.Buyer;
+import com.revshop.demo.entity.BuyerOrder;
 import com.revshop.demo.entity.CartItem;
 import com.revshop.demo.repository.BuyerRepository;
 import com.stripe.exception.StripeException;
@@ -20,13 +21,14 @@ public class CheckOutService {
     private final PaymentService paymentService;
     private final BuyerRepository buyerRepository;
     //private final EmailService emailService;
-    //private final OrderService orderService;
+    private final OrderService orderService;
 
-    public CheckOutService(CartService cartService, InventoryService inventoryService, PaymentService paymentService, BuyerRepository buyerRepository) {
+    public CheckOutService(CartService cartService, InventoryService inventoryService, PaymentService paymentService, BuyerRepository buyerRepository, OrderService orderService) {
         this.cartService = cartService;
         this.inventoryService = inventoryService;
         this.paymentService = paymentService;
         this.buyerRepository = buyerRepository;
+        this.orderService = orderService;
     }
 
     public void checkOut(Long buyerId, String paymentMethodId) throws StripeException {
@@ -48,8 +50,10 @@ public class CheckOutService {
             throw new IllegalStateException("Payment failed!");
         }
 
+        orderService.createOrders(buyer, cartItems);
+
         /*
-            Create orders, send emails, clear cart
+            clear cart, decrement inventory, send emails
         */
     }
 
