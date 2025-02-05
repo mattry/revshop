@@ -52,6 +52,8 @@ public class CheckOutService {
 
         orderService.createOrders(buyer, cartItems);
 
+        cartService.clearCart(buyer);
+
         /*
             clear cart, decrement inventory, send emails
         */

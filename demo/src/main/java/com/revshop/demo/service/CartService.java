@@ -104,4 +104,10 @@ public class CartService {
 
         return cart.getCartItems();
     }
+
+    public void clearCart(Buyer buyer) {
+        Cart cart = cartRepository.findByBuyerId(buyer.getId())
+                .orElseThrow(() -> new RuntimeException("Cart not found for buyer"));
+        cart.getCartItems().clear();
+    }
 }
