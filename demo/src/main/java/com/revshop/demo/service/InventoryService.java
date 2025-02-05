@@ -1,5 +1,10 @@
 package com.revshop.demo.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.revshop.demo.dto.InventoryItemDTO;
 import com.revshop.demo.entity.Inventory;
 import com.revshop.demo.entity.InventoryItem;
@@ -7,11 +12,6 @@ import com.revshop.demo.entity.Product;
 import com.revshop.demo.entity.Seller;
 import com.revshop.demo.repository.InventoryItemRepository;
 import com.revshop.demo.repository.InventoryRepository;
-import com.revshop.demo.repository.ProductRepository;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class InventoryService {
@@ -24,7 +24,7 @@ public class InventoryService {
         this.inventoryItemRepository = inventoryItemRepository;
     }
 
-    private Inventory createInventory(Seller seller){
+    private Inventory createInventory(Seller seller) {
         Inventory inventory = new Inventory();
         inventory.setSeller(seller);
         return inventoryRepository.save(inventory);
@@ -38,8 +38,7 @@ public class InventoryService {
     public List<InventoryItemDTO> getInventoryItems(Long sellerId) {
         Inventory inventory = inventoryRepository.findBySellerId(sellerId)
                 .orElseThrow(() -> new IllegalArgumentException("Inventory not found for seller"));
-        return inventory.getInventoryItems().stream().map(item ->
-                mapToDTO(item)).collect(Collectors.toList());
+        return inventory.getInventoryItems().stream().map(item -> mapToDTO(item)).collect(Collectors.toList());
     }
 
     public void addProductToInventory(Seller seller, Product product, int quantity) {
@@ -56,14 +55,14 @@ public class InventoryService {
     public InventoryItemDTO updateInventoryQuantity(Long inventoryItemId, int quantity) {
 
         InventoryItem item = inventoryItemRepository.findById(inventoryItemId)
-                .orElseThrow(()-> new RuntimeException("Item not found"));
+                .orElseThrow(() -> new RuntimeException("Item not found"));
 
         item.setQuantity(quantity);
 
         return mapToDTO(inventoryItemRepository.save(item));
     }
 
-    public InventoryItemDTO mapToDTO (InventoryItem inventoryItem) {
+    public InventoryItemDTO mapToDTO(InventoryItem inventoryItem) {
         InventoryItemDTO inventoryItemDTO = new InventoryItemDTO();
         inventoryItemDTO.setId(inventoryItem.getId());
         inventoryItemDTO.setProductName(inventoryItem.getProduct().getName());

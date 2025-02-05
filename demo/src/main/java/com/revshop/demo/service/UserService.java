@@ -44,7 +44,7 @@ public class UserService {
 
     public String loginUser(String username, String password) throws AuthenticationException {
         if (username == null || password == null ||
-            username.isEmpty() || password.isEmpty()) {
+                username.isEmpty() || password.isEmpty()) {
             throw new IllegalArgumentException("Invalid username or password");
         }
         try {
@@ -81,12 +81,13 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Username does not exist"));
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Username does not exist"));
     }
 
     public UserDTO getUserById(Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
-        if(userOptional.isPresent()){
+        if (userOptional.isPresent()) {
             User user = userOptional.get();
             return mapToDTO(user);
         } else {

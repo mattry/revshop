@@ -1,12 +1,14 @@
 package com.revshop.demo.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.revshop.demo.dto.AddReviewDTO;
 import com.revshop.demo.dto.ReviewDTO;
 import com.revshop.demo.entity.Review;
 import com.revshop.demo.repository.ReviewRepository;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
