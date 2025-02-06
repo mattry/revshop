@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.revshop.demo.dto.CartDTO;
 import com.revshop.demo.dto.CartItemDTO;
+import com.revshop.demo.dto.CartRequestDTO;
 import com.revshop.demo.entity.Buyer;
 import com.revshop.demo.entity.Cart;
 import com.revshop.demo.entity.CartItem;
@@ -18,6 +19,8 @@ import com.revshop.demo.repository.BuyerRepository;
 import com.revshop.demo.repository.CartItemRepository;
 import com.revshop.demo.repository.CartRepository;
 import com.revshop.demo.repository.ProductRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class CartService {
@@ -35,15 +38,15 @@ public class CartService {
                 this.buyerRepository = buyerRepository;
         }
 
-        public void addToCart(Long buyerId, Long productId, int quantity) {
-                Cart cart = cartRepository.findByBuyerId(buyerId)
-                                .orElseGet(() -> createNewCart(buyerId));
+        public void addToCart(CartRequestDTO cartRequestDTO) {
+                Cart cart = cartRepository.findByBuyerId(cartRequestDTO.getBuyerId())
+                                .orElseGet(() -> createNewCart(cartRequestDTO.getBuyerId()));
 
-                Product product = productRepository.findById(productId)
+                Product product = productRepository.findById(cartRequestDTO.getProductId())
                                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
                 Optional<CartItem> existingItem = cart.getCartItems().stream()
-                                .filter(item -> item.getProduct().getId().equals(productId))
+                                .filter(item -> item.getProduct().getId().equals(product.getId()))
                                 .findFirst();
 
                 if (existingItem.isPresent()) {
@@ -58,6 +61,7 @@ public class CartService {
                 }
         }
 
+        @Transactional
         public void removeFromCart(Long buyerId, Long productId) {
                 Cart cart = cartRepository.findByBuyerId(buyerId)
                                 .orElseThrow(() -> new RuntimeException("Cart not found"));
@@ -119,5 +123,12 @@ public class CartService {
                 } else {
                         throw new RuntimeException("Product not found in cart.");
                 }
+        }
+
+        public List<CartItem> getCartItems(Long buyerId) {
+                Cart cart = cartRepository.findByBuyerId(buyerId)
+                                .orElseThrow(() -> new RuntimeException("Cart not found for buyer"));
+
+                return cart.getCartItems();
         }
 }

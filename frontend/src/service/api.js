@@ -20,6 +20,14 @@ export const sellerRegister = async (userInfo) => {
     return await api.post("/auth/sellerRegister", userInfo)
 }
 
+export const search = async (keyword) => {
+    return await api.get(`/product/search?keyword=${keyword}`)
+}
+
+export const addToCart = async (requestBody) => {
+    return await api.post("/cart/add", requestBody);
+}
+
 export const getCartDetails = async (buyerId) => {
     return axios.get(`${API_BASE_URL}/cart/details/${buyerId}`)
         .then(response => response.data)
