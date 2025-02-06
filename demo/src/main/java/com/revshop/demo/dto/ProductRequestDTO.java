@@ -1,12 +1,13 @@
 package com.revshop.demo.dto;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.revshop.demo.entity.Seller;
+import com.revshop.demo.entity.Category;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 /*
     DTO meant to represent incoming requests to create products or update products
@@ -16,7 +17,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductRequestDTO {
-
 
     private String name;
 
@@ -28,5 +28,6 @@ public class ProductRequestDTO {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private int stock;
+    private Category category;
 
 }

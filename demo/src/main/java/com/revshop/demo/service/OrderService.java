@@ -5,7 +5,6 @@ import com.revshop.demo.dto.OrderItemDTO;
 import com.revshop.demo.entity.*;
 import com.revshop.demo.repository.*;
 import jakarta.transaction.Transactional;
-import org.hibernate.query.Order;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,14 +23,16 @@ public class OrderService {
     private final UserRepository userRepository;
     private final BuyerRepository buyerRepository;
     private final SellerRepository sellerRepository;
+    private final EmailService emailService;
 
-    public OrderService(BuyerOrderRepository buyerOrderRepository, SellerOrderRepository sellerOrderRepository, InventoryRepository inventoryRepository, UserRepository userRepository, BuyerRepository buyerRepository, SellerRepository sellerRepository) {
+    public OrderService(BuyerOrderRepository buyerOrderRepository, SellerOrderRepository sellerOrderRepository, InventoryRepository inventoryRepository, UserRepository userRepository, BuyerRepository buyerRepository, SellerRepository sellerRepository, EmailService emailService) {
         this.buyerOrderRepository = buyerOrderRepository;
         this.sellerOrderRepository = sellerOrderRepository;
         this.inventoryRepository = inventoryRepository;
         this.userRepository = userRepository;
         this.buyerRepository = buyerRepository;
         this.sellerRepository = sellerRepository;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -63,6 +64,29 @@ public class OrderService {
 
         buyerOrder.setOrderItems(orderItems);
         buyerOrderRepository.save(buyerOrder);
+
+        sendOrderEmails(buyer, buyerOrder, sellerOrders);
+
+    }
+
+    private void sendOrderEmails(Buyer buyer, BuyerOrder order, Map<Seller, SellerOrder> sellerOrders) {
+        // Email to Buyer
+        String buyerEmail = buyer.getEmail();
+        String buyerSubject = "Order Confirmation - RevShop";
+        String buyerMessage = "Hello " + buyer.getUsername() + ",\n\n"
+                + "Your order #" + order.getBuyerOrderId() + " has been successfully placed.\n"
+                + "We will notify you once it has been shipped.\n\nThank you for shopping with RevShop!";
+        emailService.sendEmail(buyerEmail, buyerSubject, buyerMessage);
+
+        // Email to Sellers
+        for (Seller seller : sellerOrders.keySet()) {
+            String sellerEmail = seller.getEmail();
+            String sellerSubject = "New Order Received - RevShop";
+            String sellerMessage = "Hello " + seller.getUsername() + ",\n\n"
+                    + "You have received a new order (#" + order.getBuyerOrderId() + ").\n"
+                    + "Please prepare the items for shipping.\n\nThank you for selling on RevShop!";
+            emailService.sendEmail(sellerEmail, sellerSubject, sellerMessage);
+        }
     }
 
     public List<OrderDTO> getOrdersByUserId(Long userId) {

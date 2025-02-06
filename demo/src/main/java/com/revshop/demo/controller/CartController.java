@@ -1,13 +1,21 @@
 package com.revshop.demo.controller;
 
-import com.revshop.demo.dto.CartRequestDTO;
-import com.revshop.demo.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.revshop.demo.dto.CartDTO;
+import com.revshop.demo.dto.CartRequestDTO;
 import com.revshop.demo.service.CartService;
+import com.revshop.demo.service.UserService;
 
 @RestController
 @RequestMapping("/cart")
@@ -42,5 +50,12 @@ public class CartController {
     public ResponseEntity<CartDTO> getCartDetails(@PathVariable Long buyerId) {
         CartDTO cartDetails = cartService.getCartDetails(buyerId);
         return ResponseEntity.ok(cartDetails);
+    }
+
+    @PatchMapping("/update")
+    public ResponseEntity<String> updateCartItem(@RequestParam Long buyerId, @RequestParam Long productId,
+            @RequestParam int quantity) {
+        cartService.updateCartItem(buyerId, productId, quantity);
+        return ResponseEntity.ok("Cart updated successfully.");
     }
 }

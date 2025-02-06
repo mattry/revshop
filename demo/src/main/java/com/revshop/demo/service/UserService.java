@@ -26,11 +26,14 @@ public class UserService {
 
     private final AuthenticationManager authenticationManager;
 
+    private final EmailService emailService;
+
     @Autowired
-    public UserService(JwtUtil jwtUtil, UserRepository userRepository, AuthenticationManager authenticationManager) {
+    public UserService(JwtUtil jwtUtil, UserRepository userRepository, AuthenticationManager authenticationManager, EmailService emailService) {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
+        this.emailService = emailService;  // ✅ Inject EmailService
     }
 
     public String registerUser(User user) {
@@ -39,12 +42,13 @@ public class UserService {
         }
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         userRepository.save(user);
+        sendWelcomeEmail(user);
         return jwtUtil.generateToken(user.getUsername());
     }
 
     public String loginUser(String username, String password) throws AuthenticationException {
         if (username == null || password == null ||
-            username.isEmpty() || password.isEmpty()) {
+                username.isEmpty() || password.isEmpty()) {
             throw new IllegalArgumentException("Invalid username or password");
         }
         try {
@@ -81,16 +85,27 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Username does not exist"));
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Username does not exist"));
     }
 
     public UserDTO getUserById(Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
-        if(userOptional.isPresent()){
+        if (userOptional.isPresent()) {
             User user = userOptional.get();
             return mapToDTO(user);
         } else {
             throw new RuntimeException("Invalid user id");
         }
+    }
+
+    private void sendWelcomeEmail(User user) {
+        String subject = "Welcome to RevShop!";
+        String message = "Hello " + user.getFirstName() + ",\n\n"
+                + "Thank you for registering at RevShop. We're excited to have you on board!\n\n"
+                + "You can now log in and start shopping.\n\n"
+                + "Best regards,\nRevShop Team";
+
+        emailService.sendEmail(user.getEmail(), subject, message);
     }
 }
