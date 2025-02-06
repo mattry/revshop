@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.revshop.demo.dto.CartRequestDTO;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.revshop.demo.dto.CartDTO;
 import com.revshop.demo.dto.CartItemDTO;
-import com.revshop.demo.dto.CartRequestDTO;
 import com.revshop.demo.entity.Buyer;
 import com.revshop.demo.entity.Cart;
 import com.revshop.demo.entity.CartItem;
@@ -19,8 +20,6 @@ import com.revshop.demo.repository.BuyerRepository;
 import com.revshop.demo.repository.CartItemRepository;
 import com.revshop.demo.repository.CartRepository;
 import com.revshop.demo.repository.ProductRepository;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class CartService {
@@ -129,6 +128,12 @@ public class CartService {
                 Cart cart = cartRepository.findByBuyerId(buyerId)
                                 .orElseThrow(() -> new RuntimeException("Cart not found for buyer"));
 
-                return cart.getCartItems();
-        }
+        return cart.getCartItems();
+    }
+
+    public void clearCart(Buyer buyer) {
+        Cart cart = cartRepository.findByBuyerId(buyer.getId())
+                .orElseThrow(() -> new RuntimeException("Cart not found for buyer"));
+        cart.getCartItems().clear();
+    }
 }

@@ -32,5 +32,4 @@ public class BuyerOrder {
     @Column(nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
 }
