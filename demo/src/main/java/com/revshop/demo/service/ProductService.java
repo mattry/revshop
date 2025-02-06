@@ -4,16 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.revshop.demo.dto.ProductRequestDTO;
-import com.revshop.demo.entity.Seller;
-import com.revshop.demo.repository.*;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.revshop.demo.dto.ProductDTO;
+import com.revshop.demo.dto.ProductRequestDTO;
 import com.revshop.demo.dto.ReviewDTO;
+import com.revshop.demo.entity.Category;
 import com.revshop.demo.entity.Product;
 import com.revshop.demo.entity.Review;
+import com.revshop.demo.entity.Seller;
+import com.revshop.demo.repository.InventoryItemRepository;
+import com.revshop.demo.repository.OrderItemRepository;
+import com.revshop.demo.repository.ProductRepository;
+import com.revshop.demo.repository.ReviewRepository;
+import com.revshop.demo.repository.SellerRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProductService {
@@ -25,7 +31,9 @@ public class ProductService {
     private final InventoryService inventoryService;
     private final InventoryItemRepository inventoryItemRepository;
 
-    public ProductService(ProductRepository productRepository, ReviewRepository reviewRepository, OrderItemRepository orderItemRepository, SellerRepository sellerRepository, InventoryService inventoryService, InventoryItemRepository inventoryItemRepository) {
+    public ProductService(ProductRepository productRepository, ReviewRepository reviewRepository,
+            OrderItemRepository orderItemRepository, SellerRepository sellerRepository,
+            InventoryService inventoryService, InventoryItemRepository inventoryItemRepository) {
         this.productRepository = productRepository;
         this.reviewRepository = reviewRepository;
         this.orderItemRepository = orderItemRepository;
@@ -48,6 +56,7 @@ public class ProductService {
         dto.setPrice(product.getPrice());
         dto.setDescription(product.getDescription());
         dto.setSellerId(product.getSeller().getId());
+        dto.setCategory(product.getCategory());
 
         List<ReviewDTO> reviews = reviewRepository.findByProductId(product.getId()).stream()
                 .map(this::convertToReviewDTO)
@@ -63,8 +72,7 @@ public class ProductService {
                 review.getReviewerId(),
                 review.getReviewText(),
                 review.getReviewDate(),
-                review.getRating()
-        );
+                review.getRating());
     }
 
     public Product addProduct(ProductDTO productDTO) {
@@ -77,11 +85,12 @@ public class ProductService {
         Product product = new Product();
         Seller seller = sellerRepository.findById(dto.getSellerId())
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
-        product.setId(dto.getProductId());  // Usually auto-generated
+        product.setId(dto.getProductId()); // Usually auto-generated
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
         product.setSeller(seller); // Assuming Seller is provided in DTO
+        product.setCategory(dto.getCategory());
         return product;
     }
 
@@ -91,15 +100,21 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    public List<ProductDTO> getProductsByCategory(Category category) {
+        return productRepository.findByCategory(category).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public void deleteProduct(Long productId, Long sellerId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-    
+
         if (!product.getSeller().getId().equals(sellerId)) {
             throw new RuntimeException("Unauthorized: You can only delete your own products.");
         }
-    
+
         // Check if the product is in any order
         boolean productInOrder = orderItemRepository.existsByProductId(productId);
         if (productInOrder) {
@@ -107,7 +122,7 @@ public class ProductService {
         }
 
         inventoryItemRepository.deleteByProduct(product);
-    
+
         productRepository.delete(product);
     }
 
@@ -119,6 +134,7 @@ public class ProductService {
         product.setName(requestDTO.getName());
         product.setDescription(requestDTO.getDescription());
         product.setPrice(requestDTO.getPrice());
+        product.setCategory(requestDTO.getCategory());
 
         Product saved = productRepository.save(product);
 
@@ -128,7 +144,8 @@ public class ProductService {
     }
 
     public ProductDTO updateProduct(Long sellerId, Long productId, ProductRequestDTO requestDTO) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
         if (!product.getSeller().getId().equals(sellerId)) {
             throw new RuntimeException("Unauthorized: You can only update your own products.");
@@ -137,6 +154,9 @@ public class ProductService {
         product.setName(requestDTO.getName());
         product.setDescription(requestDTO.getDescription());
         product.setPrice(requestDTO.getPrice());
+        product.setCategory(requestDTO.getCategory());
+
+        product = productRepository.save(product);
 
         productRepository.save(product);
 
@@ -144,8 +164,9 @@ public class ProductService {
     }
 
     public ProductDTO getProductById(Long productId) {
-        return convertToDTO(productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found")));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        return convertToDTO(product);
     }
 
     public List<ProductDTO> searchProducts(String query) {

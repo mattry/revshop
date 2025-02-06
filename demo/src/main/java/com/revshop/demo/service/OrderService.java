@@ -19,11 +19,13 @@ public class OrderService {
     private final BuyerOrderRepository buyerOrderRepository;
     private final SellerOrderRepository sellerOrderRepository;
     private final InventoryRepository inventoryRepository;
+    private final EmailService emailService;
 
-    public OrderService(BuyerOrderRepository buyerOrderRepository, SellerOrderRepository sellerOrderRepository, InventoryRepository inventoryRepository) {
+    public OrderService(BuyerOrderRepository buyerOrderRepository, SellerOrderRepository sellerOrderRepository, InventoryRepository inventoryRepository, EmailService emailService) {
         this.buyerOrderRepository = buyerOrderRepository;
         this.sellerOrderRepository = sellerOrderRepository;
         this.inventoryRepository = inventoryRepository;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -55,6 +57,29 @@ public class OrderService {
 
         buyerOrder.setOrderItems(orderItems);
         buyerOrderRepository.save(buyerOrder);
+
+        sendOrderEmails(buyer, buyerOrder, sellerOrders);
+
+    }
+
+    private void sendOrderEmails(Buyer buyer, BuyerOrder order, Map<Seller, SellerOrder> sellerOrders) {
+        // Email to Buyer
+        String buyerEmail = buyer.getEmail();
+        String buyerSubject = "Order Confirmation - RevShop";
+        String buyerMessage = "Hello " + buyer.getUsername() + ",\n\n"
+                + "Your order #" + order.getBuyerOrderId() + " has been successfully placed.\n"
+                + "We will notify you once it has been shipped.\n\nThank you for shopping with RevShop!";
+        emailService.sendEmail(buyerEmail, buyerSubject, buyerMessage);
+
+        // Email to Sellers
+        for (Seller seller : sellerOrders.keySet()) {
+            String sellerEmail = seller.getEmail();
+            String sellerSubject = "New Order Received - RevShop";
+            String sellerMessage = "Hello " + seller.getUsername() + ",\n\n"
+                    + "You have received a new order (#" + order.getBuyerOrderId() + ").\n"
+                    + "Please prepare the items for shipping.\n\nThank you for selling on RevShop!";
+            emailService.sendEmail(sellerEmail, sellerSubject, sellerMessage);
+        }
     }
 
 //    public void createSellerOrders(BuyerOrder buyerOrder) {
