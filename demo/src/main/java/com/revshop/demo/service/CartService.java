@@ -50,13 +50,13 @@ public class CartService {
                                 .findFirst();
 
                 if (existingItem.isPresent()) {
-                        existingItem.get().setQuantity(existingItem.get().getQuantity() + quantity);
+                        existingItem.get().setQuantity(existingItem.get().getQuantity() + cartRequestDTO.getQuantity());
                         cartItemRepository.save(existingItem.get());
                 } else {
                         CartItem newItem = new CartItem();
                         newItem.setCart(cart);
                         newItem.setProduct(product);
-                        newItem.setQuantity(quantity);
+                        newItem.setQuantity(cartRequestDTO.getQuantity());
                         cartItemRepository.save(newItem);
                 }
         }
