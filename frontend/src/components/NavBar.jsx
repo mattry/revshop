@@ -74,6 +74,9 @@ const NavBar = () => {
                                 Cart
                             </Button>
                         )}
+                        <Button color="inherit" component={Link} to="orders">
+                            Orders
+                        </Button>
                         <Button color="inherit" onClick={handleLogout}>
                             Logout
                         </Button>
