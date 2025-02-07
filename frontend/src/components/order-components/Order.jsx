@@ -25,7 +25,7 @@ const Order = ({ order }) => {
                     ))}
                 </tbody>
             </table>
-            <h6>Total: ${order.total.toFixed(2)}</h6>
+            <h5>Total: ${order.total.toFixed(2)}</h5>
         </>
     )
 }

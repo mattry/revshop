@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useUser } from "../UserContext";
 import api from "../../service/api";
+import Order from "./Order";
 
 const ViewOrders = () => {
 
@@ -23,7 +24,9 @@ const ViewOrders = () => {
     return(
         <>
             {orders.length > 0 ? (
-                <p>You have orders...</p>
+                orders.map((order) => (
+                    <Order key={order.orderId} order={order} /> 
+                ))
             ) : (
                 <p>You have no orders...</p>
             )}
