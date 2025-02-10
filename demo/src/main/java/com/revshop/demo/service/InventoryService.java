@@ -92,7 +92,7 @@ public class InventoryService {
         inventoryItemRepository.save(item);
 
         if (remainingStock < item.getThreshold()) {
-            System.out.println("⚠️ Warning: Stock for product " + item.getProduct().getName() + " is below threshold ("
+            System.out.println("Warning: Stock for product " + item.getProduct().getName() + " is below threshold ("
                     + item.getThreshold() + ")");
             sendLowStockEmail(item);
         }
