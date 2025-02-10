@@ -15,7 +15,7 @@ const CreateProduct = ({ handleProductCreation }) => {
     const handleSubmit = async(e) => {
         e.preventDefault();
 
-        const request = { name, description, price, stock}
+        const request = { name, description, price, stock, category}
 
         try {
             const response = await api.post(`/sellers/${user.userId}/products`, request)
