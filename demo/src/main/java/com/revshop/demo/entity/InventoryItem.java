@@ -21,4 +21,15 @@ public class InventoryItem {
 
     @Column(nullable = false)
     private Integer quantity;
+
+    @Column(nullable = false)
+    private int threshold;
+    
+    @PrePersist
+    public void setDefaultThreshold() {
+        if (threshold == 0) { // Default to 10% of initial stock
+            threshold = (int) Math.ceil(quantity * 0.10);
+        }
+    }  
+
 }

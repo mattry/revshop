@@ -30,5 +30,11 @@ public class InventoryController {
         return ResponseEntity.ok().body(updated);
     }
 
+    @PatchMapping("/update-threshold")
+    public ResponseEntity<String> updateThreshold(@RequestParam Long productId, @RequestParam int newThreshold) {
+        inventoryService.updateThreshold(productId, newThreshold);
+        return ResponseEntity.ok("Threshold updated successfully.");
+    }
+
 
 }
