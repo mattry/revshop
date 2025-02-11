@@ -49,7 +49,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    private ProductDTO convertToDTO(Product product) {
+    public ProductDTO convertToDTO(Product product) {
         ProductDTO dto = new ProductDTO();
         dto.setProductId(product.getId());
         dto.setName(product.getName());
@@ -57,6 +57,7 @@ public class ProductService {
         dto.setDescription(product.getDescription());
         dto.setSellerId(product.getSeller().getId());
         dto.setCategory(product.getCategory());
+        dto.setImageUrl(product.getImageUrl());
 
         List<ReviewDTO> reviews = reviewRepository.findByProductId(product.getId()).stream()
                 .map(this::convertToReviewDTO)
@@ -91,6 +92,7 @@ public class ProductService {
         product.setPrice(dto.getPrice());
         product.setSeller(seller); // Assuming Seller is provided in DTO
         product.setCategory(dto.getCategory());
+        product.setImageUrl(dto.getImageUrl());
         return product;
     }
 
@@ -135,6 +137,7 @@ public class ProductService {
         product.setDescription(requestDTO.getDescription());
         product.setPrice(requestDTO.getPrice());
         product.setCategory(requestDTO.getCategory());
+        product.setImageUrl(requestDTO.getImageUrl());
 
         Product saved = productRepository.save(product);
 
@@ -155,6 +158,7 @@ public class ProductService {
         product.setDescription(requestDTO.getDescription());
         product.setPrice(requestDTO.getPrice());
         product.setCategory(requestDTO.getCategory());
+        product.setImageUrl(requestDTO.getImageUrl());
 
         product = productRepository.save(product);
 

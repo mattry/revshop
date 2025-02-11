@@ -113,6 +113,7 @@ public class OrderService {
                                 .map(item -> new OrderItemDTO(
                                         item.getProduct().getId(),
                                         item.getProduct().getName(),
+                                        item.getProduct().getImageUrl(),
                                         item.getPrice(),
                                         item.getQuantity(),
                                         item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()))))
@@ -133,6 +134,7 @@ public class OrderService {
                                 .map(item -> new OrderItemDTO(
                                         item.getProduct().getId(),
                                         item.getProduct().getName(),
+                                        item.getProduct().getImageUrl(),
                                         item.getPrice(),
                                         item.getQuantity(),
                                         item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()))))

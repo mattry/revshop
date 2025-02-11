@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 public class OrderItemDTO {
     private Long productId;
     private String productName;
+    private String imageUrl;
     private BigDecimal price;
     private Integer quantity;
     private BigDecimal subTotal;

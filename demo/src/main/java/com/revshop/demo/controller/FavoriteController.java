@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.revshop.demo.dto.ProductDTO;
 import com.revshop.demo.entity.Product;
 import com.revshop.demo.service.FavoriteService;
 
@@ -31,8 +32,8 @@ public class FavoriteController {
     }
 
     @GetMapping("/list/{userId}")
-    public ResponseEntity<List<Product>> getFavorites(@PathVariable Long userId) {
-        List<Product> favorites = favoriteService.getFavorites(userId);
+    public ResponseEntity<List<ProductDTO>> getFavorites(@PathVariable Long userId) {
+        List<ProductDTO> favorites = favoriteService.getFavorites(userId);
         return ResponseEntity.ok(favorites);
     }
 

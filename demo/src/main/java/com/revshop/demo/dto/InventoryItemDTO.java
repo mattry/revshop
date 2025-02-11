@@ -11,4 +11,5 @@ public class InventoryItemDTO {
     private Long id;
     private String productName;
     private int quantity;
+    private String imageUrl;
 }

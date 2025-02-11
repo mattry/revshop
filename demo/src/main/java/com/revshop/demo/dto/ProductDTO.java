@@ -26,4 +26,6 @@ public class ProductDTO {
     private List<ReviewDTO> reviews;
 
     private Category category;
+
+    private String imageUrl;
 }

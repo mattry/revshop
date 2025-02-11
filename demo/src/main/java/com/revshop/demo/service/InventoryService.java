@@ -72,6 +72,7 @@ public class InventoryService {
         inventoryItemDTO.setId(inventoryItem.getId());
         inventoryItemDTO.setProductName(inventoryItem.getProduct().getName());
         inventoryItemDTO.setQuantity(inventoryItem.getQuantity());
+        inventoryItemDTO.setImageUrl(inventoryItem.getProduct().getImageUrl());
 
         return inventoryItemDTO;
     }
