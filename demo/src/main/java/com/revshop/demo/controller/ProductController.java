@@ -1,5 +1,6 @@
 package com.revshop.demo.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -11,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.revshop.demo.dto.ProductDTO;
+import com.revshop.demo.entity.Category;
 import com.revshop.demo.entity.Product;
 import com.revshop.demo.service.ProductService;
-
-
 
 @RestController
 @RequestMapping("/product")
@@ -35,11 +36,19 @@ public class ProductController {
     }
 
     @PostMapping("/addProduct")
-    public ResponseEntity<Product> addProduct(@RequestBody ProductDTO productDTO) {
-        Product savedProduct = productService.addProduct(productDTO);
+    public ResponseEntity<Product> addProduct(
+            @RequestParam String name,
+            @RequestParam BigDecimal price,
+            @RequestParam String description,
+            @RequestParam Category category,
+            @RequestParam int stock,
+            @RequestParam Long sellerId,
+            @RequestParam(required = false) MultipartFile image) {
+
+        Product savedProduct = productService.addProduct(name, price, description, category, stock, sellerId, image);
         return ResponseEntity.ok(savedProduct);
     }
-    
+
     @GetMapping("/getBySeller/{sellerId}")
     public ResponseEntity<List<ProductDTO>> getProductsBySellerId(@PathVariable Long sellerId) {
         List<ProductDTO> dtos = productService.getProductsBySellerId(sellerId);

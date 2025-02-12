@@ -1,10 +1,15 @@
 package com.revshop.demo.service;
 
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.revshop.demo.dto.ProductDTO;
 import com.revshop.demo.dto.ProductRequestDTO;
@@ -30,6 +35,7 @@ public class ProductService {
     private final SellerRepository sellerRepository;
     private final InventoryService inventoryService;
     private final InventoryItemRepository inventoryItemRepository;
+    private final Path imageStoragePath = Paths.get("uploads");
 
     public ProductService(ProductRepository productRepository, ReviewRepository reviewRepository,
             OrderItemRepository orderItemRepository, SellerRepository sellerRepository,
@@ -40,6 +46,14 @@ public class ProductService {
         this.sellerRepository = sellerRepository;
         this.inventoryService = inventoryService;
         this.inventoryItemRepository = inventoryItemRepository;
+
+        try {
+            if (!Files.exists(imageStoragePath)) {
+                Files.createDirectories(imageStoragePath);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create image storage directory");
+        }
     }
 
     public List<ProductDTO> getAllProducts() {
@@ -76,10 +90,36 @@ public class ProductService {
                 review.getRating());
     }
 
-    public Product addProduct(ProductDTO productDTO) {
-        Product product = convertToEntity(productDTO);
-        Product savedProduct = productRepository.save(product);
-        return savedProduct;
+    public Product addProduct(String name, BigDecimal price, String description, Category category, int stock,
+            Long sellerId, MultipartFile image) {
+        Seller seller = sellerRepository.findById(sellerId)
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
+
+        Product product = new Product();
+        product.setName(name);
+        product.setPrice(price);
+        product.setDescription(description);
+        product.setCategory(category);
+        product.setSeller(seller);
+
+        // Save the uploaded image
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = saveImage(image);
+            product.setImageUrl(imageUrl);
+        }
+
+        return productRepository.save(product);
+    }
+
+    private String saveImage(MultipartFile image) {
+        try {
+            String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
+            Path filePath = imageStoragePath.resolve(fileName);
+            Files.copy(image.getInputStream(), filePath);
+            return "/uploads/" + fileName; // Return the URL of the saved image
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save image: " + e.getMessage());
+        }
     }
 
     private Product convertToEntity(ProductDTO dto) {
@@ -178,7 +218,8 @@ public class ProductService {
             throw new RuntimeException("Search query cannot be empty");
         }
 
-        List<Product> products = productRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query);
+        List<Product> products = productRepository
+                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query);
         List<ProductDTO> dtos = new ArrayList<>();
         for (Product product : products) {
             dtos.add(convertToDTO(product));
