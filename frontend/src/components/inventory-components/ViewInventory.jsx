@@ -52,7 +52,7 @@ const ViewInventory = () => {
         <>
             <h1>Your Inventory</h1>
             <InventoryTable inventory={inventory} handleDelete={handleDelete} />
-            <h1>Add a New Product</h1>
+            <br/>
             <CreateProduct handleProductCreation={handleProductCreation} />
         </>
     )

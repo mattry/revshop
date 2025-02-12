@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useUser } from "../UserContext";
 import api from "../../service/api";
+import Order from "./Order";
+import { Typography } from "@mui/material";
 
 const ViewOrders = () => {
 
@@ -23,9 +25,18 @@ const ViewOrders = () => {
     return(
         <>
             {orders.length > 0 ? (
-                <p>You have orders...</p>
+                <>
+                <Typography variant="h4" gutterBottom align="center">
+                    Orders:
+                </Typography>
+                {orders.map((order) => (
+                    <Order key={order.orderId} order={order} /> 
+                ))}
+                </>
             ) : (
-                <p>You have no orders...</p>
+                <Typography variant="h6" align="center">
+                    You have no orders...
+                </Typography>
             )}
         </>
     )

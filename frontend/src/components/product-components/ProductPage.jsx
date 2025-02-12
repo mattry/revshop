@@ -56,6 +56,7 @@ const ProductPage = () =>{
                 <>
                     <h1>{product.name}</h1>
                     <h3>{product.description}</h3>
+                    <h4>{product.category}</h4>
                     <h3>${product.price.toFixed(2)}</h3><br/>
 
                     {isUserSeller && (
