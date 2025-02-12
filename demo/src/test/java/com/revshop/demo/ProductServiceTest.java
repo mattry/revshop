@@ -123,7 +123,7 @@ class ProductServiceTest {
 
     @Test
     void updateProduct_SuccessfullyUpdates() {
-        ProductRequestDTO requestDTO = new ProductRequestDTO("Updated Product", "Updated Desc", price, 4, Category.DVD_BLURAY);
+        ProductRequestDTO requestDTO = new ProductRequestDTO("Updated Product", "Updated Desc", price, 4, Category.DVD_BLURAY, null);
         when(productRepository.findById(100L)).thenReturn(Optional.of(product));
         when(productRepository.save(any(Product.class))).thenReturn(product);
 

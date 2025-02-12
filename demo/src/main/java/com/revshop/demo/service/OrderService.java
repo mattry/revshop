@@ -24,8 +24,11 @@ public class OrderService {
     private final BuyerRepository buyerRepository;
     private final SellerRepository sellerRepository;
     private final EmailService emailService;
+    private final InventoryService inventoryService;
 
-    public OrderService(BuyerOrderRepository buyerOrderRepository, SellerOrderRepository sellerOrderRepository, InventoryRepository inventoryRepository, UserRepository userRepository, BuyerRepository buyerRepository, SellerRepository sellerRepository, EmailService emailService) {
+    public OrderService(BuyerOrderRepository buyerOrderRepository, SellerOrderRepository sellerOrderRepository,
+            InventoryRepository inventoryRepository, UserRepository userRepository, BuyerRepository buyerRepository,
+            SellerRepository sellerRepository, EmailService emailService, InventoryService inventoryService) {
         this.buyerOrderRepository = buyerOrderRepository;
         this.sellerOrderRepository = sellerOrderRepository;
         this.inventoryRepository = inventoryRepository;
@@ -33,6 +36,7 @@ public class OrderService {
         this.buyerRepository = buyerRepository;
         this.sellerRepository = sellerRepository;
         this.emailService = emailService;
+        this.inventoryService = inventoryService;
     }
 
     @Transactional
@@ -51,6 +55,12 @@ public class OrderService {
                 newOrder.setSeller(seller);
                 return sellerOrderRepository.save(newOrder);
             });
+
+            boolean inventoryUpdated = inventoryService.decrementInventory(item.getProduct().getId(),
+                    item.getQuantity());
+            if (!inventoryUpdated) {
+                throw new RuntimeException("Not enough stock for product: " + item.getProduct().getName());
+            }
 
             OrderItem orderItem = new OrderItem();
             orderItem.setBuyerOrder(buyerOrder);
@@ -103,10 +113,10 @@ public class OrderService {
                                 .map(item -> new OrderItemDTO(
                                         item.getProduct().getId(),
                                         item.getProduct().getName(),
+                                        item.getProduct().getImageUrl(),
                                         item.getPrice(),
                                         item.getQuantity(),
-                                        item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
-                                ))
+                                        item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()))))
                                 .collect(Collectors.toList());
 
                         BigDecimal total = items.stream()
@@ -124,10 +134,10 @@ public class OrderService {
                                 .map(item -> new OrderItemDTO(
                                         item.getProduct().getId(),
                                         item.getProduct().getName(),
+                                        item.getProduct().getImageUrl(),
                                         item.getPrice(),
                                         item.getQuantity(),
-                                        item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
-                                ))
+                                        item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()))))
                                 .collect(Collectors.toList());
 
                         BigDecimal total = items.stream()
@@ -142,16 +152,17 @@ public class OrderService {
         return orderDTOs;
     }
 
-//    public void createSellerOrders(BuyerOrder buyerOrder) {
-//        Map<Seller, List<OrderItem>> groupedBySeller = buyerOrder.getOrderItems().stream()
-//                .collect(Collectors.groupingBy(item -> item.getProduct().getSeller()));
-//
-//        groupedBySeller.forEach((seller, orderItems) -> {
-//            SellerOrder sellerOrder = new SellerOrder();
-//            sellerOrder.setSeller(seller);
-//            sellerOrder.setOrderItems(orderItems);
-//            sellerOrderRepository.save(sellerOrder);
-//
-//        });
-//    }
+    // public void createSellerOrders(BuyerOrder buyerOrder) {
+    // Map<Seller, List<OrderItem>> groupedBySeller =
+    // buyerOrder.getOrderItems().stream()
+    // .collect(Collectors.groupingBy(item -> item.getProduct().getSeller()));
+    //
+    // groupedBySeller.forEach((seller, orderItems) -> {
+    // SellerOrder sellerOrder = new SellerOrder();
+    // sellerOrder.setSeller(seller);
+    // sellerOrder.setOrderItems(orderItems);
+    // sellerOrderRepository.save(sellerOrder);
+    //
+    // });
+    // }
 }

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.revshop.demo.dto.ProductDTO;
 import com.revshop.demo.entity.Favorite;
 import com.revshop.demo.entity.Product;
 import com.revshop.demo.repository.FavoriteRepository;
@@ -15,10 +16,13 @@ public class FavoriteService {
 
     private final FavoriteRepository favoriteRepository;
     private final ProductRepository productRepository;
+    private final ProductService productService;
 
-    public FavoriteService(FavoriteRepository favoriteRepository, ProductRepository productRepository) {
+    public FavoriteService(FavoriteRepository favoriteRepository, ProductRepository productRepository,
+            ProductService productService) {
         this.favoriteRepository = favoriteRepository;
         this.productRepository = productRepository;
+        this.productService = productService;
     }
 
     public void addFavorite(Long userId, Long productId) {
@@ -32,11 +36,14 @@ public class FavoriteService {
         favoriteRepository.save(favorite);
     }
 
-    public List<Product> getFavorites(Long userId) {
+    public List<ProductDTO> getFavorites(Long userId) {
         List<Favorite> favorites = favoriteRepository.findByUserId(userId);
         return favorites.stream()
-                .map(fav -> productRepository.findById(fav.getProductId())
-                        .orElseThrow(() -> new RuntimeException("Product not found")))
+                .map(fav -> {
+                    Product product = productRepository.findById(fav.getProductId())
+                            .orElseThrow(() -> new RuntimeException("Product not found"));
+                    return productService.convertToDTO(product); // Use DTO mapping that includes imageUrl
+                })
                 .collect(Collectors.toList());
     }
 

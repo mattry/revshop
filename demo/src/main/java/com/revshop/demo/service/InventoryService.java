@@ -18,10 +18,13 @@ public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final InventoryItemRepository inventoryItemRepository;
+    private final EmailService emailService;
 
-    public InventoryService(InventoryRepository inventoryRepository, InventoryItemRepository inventoryItemRepository) {
+    public InventoryService(InventoryRepository inventoryRepository, InventoryItemRepository inventoryItemRepository,
+            EmailService emailService) {
         this.inventoryRepository = inventoryRepository;
         this.inventoryItemRepository = inventoryItemRepository;
+        this.emailService = emailService;
     }
 
     private Inventory createInventory(Seller seller) {
@@ -49,6 +52,8 @@ public class InventoryService {
         item.setQuantity(quantity);
         item.setInventory(inventory);
 
+        item.setThreshold((int) Math.ceil(quantity * 0.10));
+
         inventoryItemRepository.save(item);
     }
 
@@ -67,7 +72,59 @@ public class InventoryService {
         inventoryItemDTO.setId(inventoryItem.getId());
         inventoryItemDTO.setProductName(inventoryItem.getProduct().getName());
         inventoryItemDTO.setQuantity(inventoryItem.getQuantity());
+        inventoryItemDTO.setImageUrl(inventoryItem.getProduct().getImageUrl());
 
         return inventoryItemDTO;
     }
+
+    public boolean decrementInventory(Long productId, int quantity) {
+        InventoryItem item = inventoryItemRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product inventory not found"));
+
+        int remainingStock = item.getQuantity() - quantity;
+
+        // 🔹 Prevent orders if stock is below zero
+        if (remainingStock < 0) {
+            return false; // Not enough stock
+        }
+
+        // 🔹 Update inventory
+        item.setQuantity(remainingStock);
+        inventoryItemRepository.save(item);
+
+        if (remainingStock < item.getThreshold()) {
+            System.out.println("Warning: Stock for product " + item.getProduct().getName() + " is below threshold ("
+                    + item.getThreshold() + ")");
+            sendLowStockEmail(item);
+        }
+
+        return true;
+    }
+
+    public void updateThreshold(Long productId, int newThreshold) {
+        InventoryItem item = inventoryItemRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product inventory not found"));
+
+        if (newThreshold < 0) {
+            throw new IllegalArgumentException("Threshold cannot be negative.");
+        }
+
+        item.setThreshold(newThreshold);
+        inventoryItemRepository.save(item);
+    }
+
+    private void sendLowStockEmail(InventoryItem item) {
+        String sellerEmail = item.getInventory().getSeller().getEmail();
+        String subject = "Low Stock Alert for Product: " + item.getProduct().getName();
+        String message = "Dear " + item.getInventory().getSeller().getUsername() + ",\n\n"
+                + "This is to notify you that the stock for your product, "
+                + item.getProduct().getName() + ", has fallen below the configured threshold of "
+                + item.getThreshold() + " units.\n"
+                + "Current stock: " + item.getQuantity() + " units.\n\n"
+                + "Please restock soon to avoid order cancellations.\n\n"
+                + "Thank you,\nRevShop Team";
+
+        emailService.sendEmail(sellerEmail, subject, message);
+    }
+
 }

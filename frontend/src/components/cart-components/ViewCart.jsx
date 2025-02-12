@@ -33,6 +33,41 @@ const ViewCart = () => {
         }
     };
 
+    const handleUpdateQuantity = async (productId, quantity) => {
+        if (quantity < 1) {
+            alert("Quantity cannot be less than 1.");
+            return;
+        }
+    
+        try {
+            await api.patch(`/cart/update`, null, {
+                params: {
+                    buyerId: user.userId,
+                    productId,
+                    quantity,
+                },
+            });
+    
+            setCart((prev) => ({
+                ...prev,
+                items: prev.items.map((item) =>
+                    item.productId === productId
+                        ? { ...item, quantity, subtotal: item.price * quantity }
+                        : item
+                ),
+                total: prev.items.reduce(
+                    (acc, item) =>
+                        item.productId === productId
+                            ? acc + item.price * quantity
+                            : acc + item.subtotal,
+                    0
+                ),
+            }));
+        } catch (error) {
+            console.error("Error updating cart quantity", error);
+        }
+    };
+
     useEffect(() => {
         fetchCart();
     }, [user])
@@ -40,7 +75,7 @@ const ViewCart = () => {
     return(
         <>
             {cart.items.length > 0 ? (
-                <CartItemList cart={cart} onDelete={handleDelete} />
+                <CartItemList cart={cart} onDelete={handleDelete} onUpdate={handleUpdateQuantity}/>
             ) : (
                 <p>Your cart is empty.</p>
             )}

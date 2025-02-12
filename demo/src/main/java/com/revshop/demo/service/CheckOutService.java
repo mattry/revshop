@@ -20,10 +20,11 @@ public class CheckOutService {
     private final InventoryService inventoryService;
     private final PaymentService paymentService;
     private final BuyerRepository buyerRepository;
-    //private final EmailService emailService;
+    // private final EmailService emailService;
     private final OrderService orderService;
 
-    public CheckOutService(CartService cartService, InventoryService inventoryService, PaymentService paymentService, BuyerRepository buyerRepository, OrderService orderService) {
+    public CheckOutService(CartService cartService, InventoryService inventoryService, PaymentService paymentService,
+            BuyerRepository buyerRepository, OrderService orderService) {
         this.cartService = cartService;
         this.inventoryService = inventoryService;
         this.paymentService = paymentService;
@@ -55,11 +56,8 @@ public class CheckOutService {
         cartService.clearCart(buyer);
 
         /*
-            clear cart, decrement inventory, send emails
-        */
+         * clear cart, decrement inventory, send emails
+         */
     }
-
-
-
 
 }

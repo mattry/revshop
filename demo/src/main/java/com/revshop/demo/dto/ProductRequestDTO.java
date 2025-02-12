@@ -30,4 +30,6 @@ public class ProductRequestDTO {
     private int stock;
     private Category category;
 
+    private String imageUrl;
+
 }
