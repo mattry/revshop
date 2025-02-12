@@ -23,16 +23,17 @@ const CreateProduct = ({ handleProductCreation }) => {
         // Use FormData to handle file uploads
         const formData = new FormData();
         formData.append("name", name);
-        formData.append("description", description);
         formData.append("price", price);
-        formData.append("stock", stock);
+        formData.append("description", description);
         formData.append("category", category);
+        formData.append("stock", stock);
+        formData.append("sellerId", user.userId);
         if (pic) {
             formData.append("image", pic); // Attach the image file
         }
 
         try {
-            const response = await api.post(`/sellers/${user.userId}/products`, formData, {
+            const response = await api.post(`/product`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data", // Required for file uploads
                 },

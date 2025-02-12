@@ -7,22 +7,33 @@ import { Button, TextField } from "@mui/material";
 import { addToCart } from "../../service/api";
 
 
-const ProductPage = () =>{
+const ProductPage = () => {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const { user } = useUser();
     const [quantity, setQuantity] = useState(1);
+    const [imageSrc, setImageSrc] = useState("");
+
 
     const fetchProductDetails = async () => {
-        try{
+        try {
             const response = await api.get(`/product/${id}`);
             setProduct(response.data);
+            
+            const fullImageUrl = response.data.imageUrl
+                ? `http://localhost:8080${response.data.imageUrl}`
+                : "https://www.shutterstock.com/shutterstock/photos/2489844309/display_1500/stock-vector-colorful-game-controller-icon-vector-illustration-retro-gaming-controller-detailed-vector-art-2489844309.jpg"; // Fallback for missing image
+
+            setImageSrc(fullImageUrl);
+            console.log("Image URL:", fullImageUrl);
+
+
         } catch (error) {
             console.error("Error fetching product details", error);
         }
-    }
-    
+    };
+
     const submitHandler = async () => {
         const request = {
             buyerId: user.userId,
@@ -36,7 +47,13 @@ const ProductPage = () =>{
         } catch (error) {
             console.error("Error adding product to cart:", error);
         }
-    }
+    };
+
+    const handleImageError = () => {
+        if (!imageSrc.includes("default-profile.png")) {
+            setImageSrc("https://www.shutterstock.com/shutterstock/photos/2489844309/display_1500/stock-vector-colorful-game-controller-icon-vector-illustration-retro-gaming-controller-detailed-vector-art-2489844309.jpg"); // Use a reliable fallback URL
+        }
+    };
 
     useEffect(() => {
         fetchProductDetails();
@@ -49,15 +66,21 @@ const ProductPage = () =>{
 
     const isUserSeller = user?.userId === product.sellerId;
     const isBuyer = user?.role === "BUYER";
-    
-    return(
+
+    return (
         <>
             {!isEditing ? (
                 <>
                     <h1>{product.name}</h1>
+                    <img
+                        src={imageSrc} // Fallback to placeholder if imageUrl is null
+                        alt={product.name}
+                        onError={handleImageError} // Fallback if the image fails to load
+                        style={{ width: "300px", height: "300px", objectFit: "scale-down" }} // Add styling for consistent display
+                    />
                     <h3>{product.description}</h3>
                     <h4>{product.category}</h4>
-                    <h3>${product.price.toFixed(2)}</h3><br/>
+                    <h3>${product.price.toFixed(2)}</h3><br />
 
                     {isUserSeller && (
                         <Button variant="outlined" onClick={() => setIsEditing(true)}>Edit Product</Button>
@@ -76,19 +99,19 @@ const ProductPage = () =>{
                                 size="small"
                                 style={{ width: "80px" }}
                             />
-                        <Button variant="outlined" onClick={submitHandler}>
-                            Add to Cart
-                        </Button>
-                    </div>
+                            <Button variant="outlined" onClick={submitHandler}>
+                                Add to Cart
+                            </Button>
+                        </div>
                     )}
                 </>
             ) : (
-                <UpdateProductForm 
-                    product={product} 
+                <UpdateProductForm
+                    product={product}
                     onUpdateSuccess={(updatedProduct) => {
                         setProduct(updatedProduct);
                         setIsEditing(false);
-                    }} 
+                    }}
                 />
             )}
         </>

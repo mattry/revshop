@@ -15,6 +15,8 @@ import com.revshop.demo.dto.ProductDTO;
 import com.revshop.demo.dto.ProductRequestDTO;
 import com.revshop.demo.dto.ReviewDTO;
 import com.revshop.demo.entity.Category;
+import com.revshop.demo.entity.Inventory;
+import com.revshop.demo.entity.InventoryItem;
 import com.revshop.demo.entity.Product;
 import com.revshop.demo.entity.Review;
 import com.revshop.demo.entity.Seller;
@@ -90,26 +92,30 @@ public class ProductService {
                 review.getRating());
     }
 
-    public Product addProduct(String name, BigDecimal price, String description, Category category, int stock,
-            Long sellerId, MultipartFile image) {
-        Seller seller = sellerRepository.findById(sellerId)
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+    public Product addProduct(String name, BigDecimal price, String description, Category category, int stock, Long sellerId, MultipartFile image) {
+    Seller seller = sellerRepository.findById(sellerId)
+            .orElseThrow(() -> new RuntimeException("Seller not found"));
 
-        Product product = new Product();
-        product.setName(name);
-        product.setPrice(price);
-        product.setDescription(description);
-        product.setCategory(category);
-        product.setSeller(seller);
+    Product product = new Product();
+    product.setName(name);
+    product.setPrice(price);
+    product.setDescription(description);
+    product.setCategory(category);
+    product.setSeller(seller);
 
-        // Save the uploaded image
-        if (image != null && !image.isEmpty()) {
-            String imageUrl = saveImage(image);
-            product.setImageUrl(imageUrl);
-        }
-
-        return productRepository.save(product);
+    if (image != null && !image.isEmpty()) {
+        String imageUrl = saveImage(image);
+        product.setImageUrl(imageUrl);
     }
+
+    product = productRepository.save(product);
+
+
+    inventoryService.addProductToInventory(seller, product, stock);
+
+    return product; // Return the saved Product
+}
+
 
     private String saveImage(MultipartFile image) {
         try {

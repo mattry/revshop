@@ -3,6 +3,7 @@ package com.revshop.demo.controller;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +36,7 @@ public class ProductController {
         return ResponseEntity.ok(dtos);
     }
 
-    @PostMapping("/addProduct")
+    @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<Product> addProduct(
             @RequestParam String name,
             @RequestParam BigDecimal price,

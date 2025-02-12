@@ -29,13 +29,13 @@ export const addToCart = async (requestBody) => {
 }
 
 export const getCartDetails = async (buyerId) => {
-    return axios.get(`${API_BASE_URL}/cart/details/${buyerId}`)
+    return api.get(`/cart/details/${buyerId}`)
         .then(response => response.data)
         .catch(error => { throw error.response?.data?.error || "Failed to fetch cart"; });
 };
 
 export const updateCartItem = async (buyerId, productId, quantity) => {
-    return axios.patch(`${API_BASE_URL}/cart/update`, null, {
+    return api.patch(`/cart/update`, null, {
         params: { buyerId, productId, quantity }
     })
     .then(response => response.data)
