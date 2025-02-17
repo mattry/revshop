@@ -73,6 +73,7 @@ public class InventoryService {
         inventoryItemDTO.setProductName(inventoryItem.getProduct().getName());
         inventoryItemDTO.setQuantity(inventoryItem.getQuantity());
         inventoryItemDTO.setImageUrl(inventoryItem.getProduct().getImageUrl());
+        inventoryItemDTO.setThreshold(inventoryItem.getThreshold());
 
         return inventoryItemDTO;
     }
