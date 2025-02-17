@@ -20,6 +20,7 @@ const InventoryTable = ({ inventory, handleDelete }) => {
             )
         },
         { field: 'quantity', headerName: 'Quantity', type: 'number', width: 120 },
+        { field: 'threshold', headerName: 'Low-Threshold', type: 'number', width: 120 },
         { 
             field: 'actions',
             headerName: 'Delete Item',
@@ -30,7 +31,8 @@ const InventoryTable = ({ inventory, handleDelete }) => {
                     <GridDeleteIcon />
                 </IconButton>
             )
-        }
+        },
+ 
       ];
 
     return (
