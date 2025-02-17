@@ -41,7 +41,7 @@ public class InventoryService {
     public List<InventoryItemDTO> getInventoryItems(Long sellerId) {
         Inventory inventory = inventoryRepository.findBySellerId(sellerId)
                 .orElseThrow(() -> new IllegalArgumentException("Inventory not found for seller"));
-        return inventory.getInventoryItems().stream().map(item -> mapToDTO(item)).collect(Collectors.toList());
+        return inventory.getInventoryItems().stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     public void addProductToInventory(Seller seller, Product product, int quantity) {
